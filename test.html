@@ -1,0 +1,13 @@
+<object id="testPlugin" type="application/x-linphone" width="0" height="0" onload="alert('The plugin has loaded!');">
+  <param name="onload" value="pluginCB" />
+</object>
+
+
+<script language="javascript">
+var el = document.getElementById('testPlugin');
+</script>
+
+<input type="button" onclick="alert(el.running);" value="Running?" />
+<input type="button" onclick="alert(el.init());" value="Init" />
+<input type="button" onclick="alert(el.start());" value="Start" />
+<input type="button" onclick="alert(el.quit());" value="Quit" />

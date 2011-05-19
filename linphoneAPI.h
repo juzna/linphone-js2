@@ -27,9 +27,21 @@ public:
     linphonePtr getPlugin();
 
 	// Exported methods
+	bool call_init(void);
     bool call_start(void);
+	bool call_quit(void);
+	
+	// Properties methods
+	bool get_running(void);
 
 
+	
+	
+    void lock() { pthread_mutex_lock(&mutex); }
+    void unlock() { pthread_mutex_unlock(&mutex); }
+    void iterate() { if(lin) linphone_core_iterate(lin); }
+    void iterateWithMutex() { lock(); iterate(); unlock(); }
+	
 	
 	/*
 	// Read/Write property ${PROPERTY.ident}

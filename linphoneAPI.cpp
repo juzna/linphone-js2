@@ -27,31 +27,20 @@ linphoneAPI::linphoneAPI(const linphonePtr& plugin, const FB::BrowserHostPtr& ho
   printf("creating new plugin instance\n");
   
   // Register exported methods
+  rmethod(init);
   rmethod(start);
-
+  rmethod(quit);
+  
+  // Register exported properties
+  rpropertyg(running);
+  
   // Initialize mutex
   pthread_mutex_init(&mutex, NULL);  
   
   // Initialize as null pointer
   lin = NULL;
   iterate_thread = NULL;
-
-  
-  
-  /*
-	registerMethod("echo",      make_method(this, &linphoneAPI::echo));
-    registerMethod("testEvent", make_method(this, &linphoneAPI::testEvent));
-
-    // Read-write property
-    registerProperty("testString",
-                     make_property(this,
-                        &linphoneAPI::get_testString,
-                        &linphoneAPI::set_testString));
-
-    // Read-only property
-    registerProperty("version",
-                     make_property(this,
-                        &linphoneAPI::get_version)); */
+  iterate_thread_running = false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -66,7 +55,7 @@ linphoneAPI::~linphoneAPI()
   printf("deallocating plugin instance\n");
   
   // Quit first
-//   call_quit();
+   call_quit();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -87,13 +76,13 @@ linphonePtr linphoneAPI::getPlugin()
 }
 
 /**
-* Initialie linphone core and start iterate thread
-*/
-bool linphoneAPI::call_start(void) {
-    if(lin) return false; // Already initialized
-      
+ * Initialize structures
+ */
+bool linphoneAPI::call_init(void) {    
     Lock lck(&mutex, NULL);
+    if(lin) return false; // Already initialized	
     
+	  
     // Initialize callback table
     memset(&lin_vtable, 0, sizeof(LinphoneCoreVTable));
 /*    lin_vtable.show 			= (ShowInterfaceCb) stub;
@@ -124,6 +113,7 @@ bool linphoneAPI::call_start(void) {
       return false;
     }
     
+    // TODO: move this to separate methods
     // Disable/enable logs
     //linphone_core_disable_logs();
     linphone_core_enable_logs(stdout);
@@ -133,6 +123,17 @@ bool linphoneAPI::call_start(void) {
     
     linphone_core_enable_video(lin, false, false);
     
+    return true;
+}
+
+
+
+/**
+ * Start main thread
+ */
+bool linphoneAPI::call_start(void) {
+	if(!lin) return false;
+        
     // Initialize iterating thread
     iterate_thread_running = true;
     ortp_thread_create(&iterate_thread,NULL, iterate_thread_main, this);
@@ -141,18 +142,48 @@ bool linphoneAPI::call_start(void) {
 }
 
 /**
-* Thread, which iterates in linphone core each 20ms
-*/
+ * Thread, which iterates in linphone core each 20ms
+ */
 static void *iterate_thread_main(void*p){
     linphoneAPI *t = (linphoneAPI*) p; // Get main object
     printf("iterate thread started\n");
     
     while(t->iterate_thread_running) {
-      //t->iterateWithMutex();
+      t->iterateWithMutex();
       usleep(20000);
     }
     printf("iterate thread stopped\n");
 }
+
+/**
+ * Quit linphone core: stop iterate thread
+ */
+bool linphoneAPI::call_quit(void) {
+  if(!lin) return false;
+  
+  {
+    Lock lck(&mutex, "terminate call");
+    
+    // Terminate call
+    linphone_core_terminate_call(lin, NULL);
+  }
+  
+  // Stop iterating
+  iterate_thread_running = false;
+  ortp_thread_join(iterate_thread,NULL);
+  printf("iterate thread joined\n");
+  
+  // Destroy linphone core
+  linphone_core_destroy(lin);
+  lin = NULL;
+  
+  return true;
+}
+
+bool linphoneAPI::get_running(void) {
+  return lin && iterate_thread_running;
+}
+
 
 
 
