@@ -34,6 +34,7 @@ linphoneAPI::linphoneAPI(const linphonePtr& plugin, const FB::BrowserHostPtr& ho
   rmethod(addProxy);
   rmethod(accept);
   rmethod(terminate);
+  rmethod(call);
   
   // Register exported properties
   rpropertyg(running);
@@ -127,7 +128,8 @@ bool linphoneAPI::call_init(void) {
     linphone_core_set_stun_server(lin, "stun.helemik.cz");
     
     linphone_core_enable_video(lin, false, false);
-    
+    linphone_core_set_sip_port(lin, 6060);
+	
     return true;
 }
 
@@ -267,6 +269,19 @@ bool linphoneAPI::get_registered(void) {
   else return false;
 }
 
+/**
+ * Initialize new call
+ */
+bool linphoneAPI::call_call(std::string uri) {
+  Lock lck(&mutex, "call");
+  if(!linphone_core_invite(lin, uri.c_str())) {
+    return false;
+  }
+  else {
+    //callee = uri;
+    return false;
+  }
+}
 
 
 
