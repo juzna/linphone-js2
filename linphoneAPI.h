@@ -11,6 +11,10 @@
 #include "BrowserHost.h"
 #include "linphone.h"
 
+#include <linphonecore.h>
+#include "private.h" /*coreapi/private.h, needed for LINPHONE_VERSION */
+
+
 #ifndef H_linphoneAPI
 #define H_linphoneAPI
 
@@ -22,7 +26,13 @@ public:
 
     linphonePtr getPlugin();
 
-    // Read/Write property ${PROPERTY.ident}
+	// Exported methods
+    bool call_start(void);
+
+
+	
+	/*
+	// Read/Write property ${PROPERTY.ident}
     std::string get_testString();
     void set_testString(const std::string& val);
 
@@ -38,14 +48,24 @@ public:
     FB_JSAPI_EVENT(notify, 0, ());
 
     // Method test-event
-    void testEvent(const FB::variant& s);
+    void testEvent(const FB::variant& s); */
 
 private:
     linphoneWeakPtr m_plugin;
     FB::BrowserHostPtr m_host;
 
-    std::string m_testString;
+    LinphoneCore *lin;	// Linphone core object
+    LinphoneCoreVTable lin_vtable; // Linphone callback methods table
+    pthread_mutex_t mutex; // Mutex for serializing core calls
+    ortp_thread_t iterate_thread; // Iterate thread
+    
+public:
+	bool iterate_thread_running; // Indicate, when should iterate thread stop
 };
+
+static void stub () {}
+static void* iterate_thread_main(void *p); // Main function for iterate thread
+
 
 #endif // H_linphoneAPI
 
