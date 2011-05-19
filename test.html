@@ -11,3 +11,15 @@ var el = document.getElementById('testPlugin');
 <input type="button" onclick="alert(el.init());" value="Init" />
 <input type="button" onclick="alert(el.start());" value="Start" />
 <input type="button" onclick="alert(el.quit());" value="Quit" />
+<br />
+
+<input type="button" onclick='el.addAuthInfo("571891103", "\"ipbx\"", "dummypass1A")' value="Set auth info" />
+<input type="button" onclick="el.addProxy('sip:sip.helemik.cz', 'sip:571891103@sip.helemik.cz')" value="Add proxy" />
+<input type="button" onclick="alert(el.registered);" value="Registered?" />
+<br />
+
+<input type="button" onclick="el.accept()" value="Accept call" />
+<input type="button" onclick="el.terminate()" value="Terminate call" />
+<br />
+
+

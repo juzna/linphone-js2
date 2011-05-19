@@ -30,9 +30,14 @@ linphoneAPI::linphoneAPI(const linphonePtr& plugin, const FB::BrowserHostPtr& ho
   rmethod(init);
   rmethod(start);
   rmethod(quit);
+  rmethod(addAuthInfo);
+  rmethod(addProxy);
+  rmethod(accept);
+  rmethod(terminate);
   
   // Register exported properties
   rpropertyg(running);
+  rpropertyg(registered);
   
   // Initialize mutex
   pthread_mutex_init(&mutex, NULL);  
@@ -118,8 +123,8 @@ bool linphoneAPI::call_init(void) {
     //linphone_core_disable_logs();
     linphone_core_enable_logs(stdout);
     
-    //linphone_core_set_firewall_policy(lin, LINPHONE_POLICY_USE_STUN);
-    //linphone_core_set_stun_server(lin, "stun.helemik.cz");
+    linphone_core_set_firewall_policy(lin, LinphonePolicyUseStun);
+    linphone_core_set_stun_server(lin, "stun.helemik.cz");
     
     linphone_core_enable_video(lin, false, false);
     
@@ -180,8 +185,86 @@ bool linphoneAPI::call_quit(void) {
   return true;
 }
 
+/**
+ * Check whether main thread is running
+ */
 bool linphoneAPI::get_running(void) {
   return lin && iterate_thread_running;
+}
+
+/**
+ * Add authentication info
+ */
+void linphoneAPI::call_addAuthInfo(std::string username, std::string realm, std::string passwd) {
+  Lock lck(&mutex, "add auth info");
+  LinphoneAuthInfo *info;
+  
+  info = linphone_auth_info_new(username.c_str(), NULL, passwd.c_str(), NULL, realm.c_str());
+  linphone_core_add_auth_info(lin, info);
+  linphone_auth_info_destroy(info);
+}
+
+/**
+ * Add proxy server
+ */
+void linphoneAPI::call_addProxy(std::string proxy, std::string identity) {
+  {
+    Lock lck(&mutex, "add proxy");
+    
+    LinphoneProxyConfig *cfg;
+    cfg = linphone_proxy_config_new();
+    
+    linphone_proxy_config_set_identity(cfg, identity.c_str());
+    linphone_proxy_config_set_server_addr(cfg, proxy.c_str());
+    linphone_proxy_config_enable_register(cfg, TRUE);
+
+    // finish the config
+    linphone_core_add_proxy_config(lin, cfg);
+
+    // set config as default proxy
+    linphone_core_set_default_proxy(lin, cfg);
+  }
+    
+  //FireEvent("onProxyAdded", FB::variant_list_of(proxy)(identity));
+}
+
+/**
+ * Accept incoming call
+ */
+bool linphoneAPI::call_accept(void) {
+  Lock lck(&mutex, "accept");
+  return linphone_core_accept_call(lin, NULL) != -1;
+}
+
+/**
+ * Terminate actual call
+ */
+bool linphoneAPI::call_terminate(void) {
+  Lock lck(&mutex, "terminate");
+  return linphone_core_terminate_call(lin, NULL) != -1;
+}
+
+/**
+ * Check whether we're registered to proxy
+ */
+bool linphoneAPI::get_registered(void) {
+  Lock lck(&mutex, "get-registered");
+  if(!lin) return false;
+  
+  LinphoneProxyConfig *cfg;
+  int ret;
+  
+  linphone_core_get_default_proxy(lin, &cfg); // Get default proxy
+  if(!cfg) {
+    printf("get registered: no proxy present\n");
+    return false;
+  }
+  ret = linphone_proxy_config_is_registered(cfg);
+  
+  printf("get registered: got cfg %u; %d\n", (void *) cfg, ret);
+
+  if(cfg) return ret > 0;
+  else return false;
 }
 
 

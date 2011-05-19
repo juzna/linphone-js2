@@ -30,10 +30,14 @@ public:
 	bool call_init(void);
     bool call_start(void);
 	bool call_quit(void);
+    void call_addAuthInfo(std::string username, std::string realm, std::string password);
+    void call_addProxy(std::string proxy, std::string identity);
+    bool call_accept(void);
+    bool call_terminate(void);
 	
 	// Properties methods
 	bool get_running(void);
-
+	bool get_registered(void);
 
 	
 	
