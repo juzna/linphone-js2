@@ -43,6 +43,10 @@ linphoneAPI::linphoneAPI(const linphonePtr& plugin, const FB::BrowserHostPtr& ho
   rpropertyg(running);
   rpropertyg(registered);
   rpropertyg(sample);
+  rpropertyg(inCall);
+  rproperty(videoEnabled);
+  rproperty(videoPreviewEnabled);
+  
   
   // Initialize mutex
   pthread_mutex_init(&mutex, NULL);  
@@ -291,7 +295,7 @@ bool linphoneAPI::call_call(std::string uri) {
 FB::JSAPIPtr linphoneAPI::get_sample(void) {
   // Create instance if not yet exists
   if(!_sample.use_count()) {
-	_sample.reset(new sampleAPI(m_host));
+	_sample = boost::make_shared<sampleAPI>(m_host); //reset(new sampleAPI(m_host));
   }
   
   return _sample;
@@ -300,33 +304,12 @@ FB::JSAPIPtr linphoneAPI::get_sample(void) {
 
 /*
 
-// Read/Write property testString
-std::string linphoneAPI::get_testString()
-{
-    return m_testString;
-}
-void linphoneAPI::set_testString(const std::string& val)
-{
-    m_testString = val;
-}
-
-// Read-only property version
-std::string linphoneAPI::get_version()
-{
-    return "CURRENT_VERSION";
-}
-
 // Method echo
 FB::variant linphoneAPI::echo(const FB::variant& msg)
 {
     static int n(0);
     fire_echo(msg, n++);
     return msg;
-}
-
-void linphoneAPI::testEvent(const FB::variant& var)
-{
-    fire_fired(var, true, 1);
 }
 
 */

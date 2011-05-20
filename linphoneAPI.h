@@ -18,6 +18,10 @@
 #ifndef H_linphoneAPI
 #define H_linphoneAPI
 
+#include "lock.h"
+#define Lo Lock lck(&mutex, NULL);
+
+
 class linphoneAPI : public FB::JSAPIAuto
 {
 public:
@@ -40,6 +44,11 @@ public:
 	bool get_running(void);
 	bool get_registered(void);
 	FB::JSAPIPtr get_sample(void);
+	bool get_inCall(void) { Lo; return linphone_core_in_call(lin); }
+	bool get_videoEnabled(void) { Lo; return linphone_core_video_enabled(lin); }
+	void set_videoEnabled(bool x) { Lo; linphone_core_enable_video(lin, x, x); }
+	bool get_videoPreviewEnabled(void) { Lo; return linphone_core_video_preview_enabled(lin); }
+	void set_videoPreviewEnabled(bool x) { Lo; linphone_core_enable_video_preview(lin, x); }
 	
 	
     void lock() { pthread_mutex_lock(&mutex); }
@@ -49,12 +58,6 @@ public:
 	
 	
 	/*
-	// Read/Write property ${PROPERTY.ident}
-    std::string get_testString();
-    void set_testString(const std::string& val);
-
-    // Read-only property ${PROPERTY.ident}
-    std::string get_version();
 
     // Method echo
     FB::variant echo(const FB::variant& msg);
@@ -63,9 +66,7 @@ public:
     FB_JSAPI_EVENT(fired, 3, (const FB::variant&, bool, int));
     FB_JSAPI_EVENT(echo, 2, (const FB::variant&, const int));
     FB_JSAPI_EVENT(notify, 0, ());
-
-    // Method test-event
-    void testEvent(const FB::variant& s); */
+*/
 
 private:
     linphoneWeakPtr m_plugin;

@@ -1,8 +1,8 @@
 #!/bin/bash
 cd ../../;
-#./prepmake.sh;
+./prepmake.sh;
 
 cd build;
 make linphone
 
-cp ./bin/linphone/nplinphone.so /home/juzna/.mozilla/plugins/
+#cp ./bin/linphone/nplinphone.so /home/juzna/.mozilla/plugins/
