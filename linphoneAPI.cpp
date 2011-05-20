@@ -15,6 +15,12 @@
 #include "lock.h"
 
 
+// Original callbacks from linphone core
+#define GLC if(!linphone_core_get_user_data(lc)) printf("not found linphone api\n"); else ((linphoneAPI*) linphone_core_get_user_data(lc))
+static void cb_global_state(LinphoneCore *lc, LinphoneGlobalState gstate, const char *msg) { GLC->lcb_global_state(lc, gstate, msg); }
+
+
+
 ///////////////////////////////////////////////////////////////////////////////
 /// @fn linphoneAPI::linphoneAPI(const linphonePtr& plugin, const FB::BrowserHostPtr host)
 ///
@@ -100,6 +106,7 @@ bool linphoneAPI::call_init(void) {
 	  
     // Initialize callback table
     memset(&lin_vtable, 0, sizeof(LinphoneCoreVTable));
+    lin_vtable.global_state_changed = cb_global_state;
 /*    lin_vtable.show 			= (ShowInterfaceCb) stub;
     lin_vtable.inv_recv 		= mcb(lcb_call_received);
     lin_vtable.bye_recv 		= mcb(lcb_bye_received);
@@ -303,6 +310,12 @@ FB::JSAPIPtr linphoneAPI::get_sample(void) {
   return _sample;
 }
 
+
+
+// Events
+void linphoneAPI::lcb_global_state(LinphoneCore * lc, LinphoneGlobalState gstate, const char *msg) {
+	fire_globalStateChanged(gstate, msg);
+}
 
 /*
 

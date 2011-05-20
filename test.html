@@ -2,9 +2,12 @@
   <param name="onload" value="pluginCB" />
 </object>
 
+<object id="test1" type="application/x-test1" width="0" height="0" onload="alert('The plugin has loaded!');">
+</object>
 
 <script language="javascript">
 var el = document.getElementById('testPlugin');
+var t1 = document.getElementById('test1');
 </script>
 
 <input type="button" onclick="alert(el.running);" value="Running?" />

@@ -57,6 +57,9 @@ public:
     void iterateWithMutex() { lock(); iterate(); unlock(); }
 	
 	
+	// Event helpers
+	FB_JSAPI_EVENT(globalStateChanged, 2, (const int, const std::string))
+	
 	/*
 
     // Method echo
@@ -67,6 +70,10 @@ public:
     FB_JSAPI_EVENT(echo, 2, (const FB::variant&, const int));
     FB_JSAPI_EVENT(notify, 0, ());
 */
+
+
+	// Callbacks from linphone core
+	void lcb_global_state(LinphoneCore * lc, LinphoneGlobalState gstate, const char *msg);
 
 private:
     linphoneWeakPtr m_plugin;
