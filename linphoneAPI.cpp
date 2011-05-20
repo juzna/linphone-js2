@@ -10,6 +10,7 @@
 
 #include "linphoneAPI.h"
 #include "sampleAPI.h"
+#include "CallAPI.h"
 #include "common.h"
 #include "lock.h"
 
@@ -129,8 +130,8 @@ bool linphoneAPI::call_init(void) {
     
     // TODO: move this to separate methods
     // Disable/enable logs
-    //linphone_core_disable_logs();
-    linphone_core_enable_logs(stdout);
+    linphone_core_disable_logs();
+    //linphone_core_enable_logs(stdout);
     
     linphone_core_set_firewall_policy(lin, LinphonePolicyUseStun);
     linphone_core_set_stun_server(lin, "stun.helemik.cz");
@@ -281,14 +282,15 @@ bool linphoneAPI::get_registered(void) {
 /**
  * Initialize new call
  */
-bool linphoneAPI::call_call(std::string uri) {
+FB::JSAPIPtr linphoneAPI::call_call(std::string uri) {
   Lock lck(&mutex, "call");
-  if(!linphone_core_invite(lin, uri.c_str())) {
-    return false;
+  LinphoneCall *call = linphone_core_invite(lin, uri.c_str());
+    
+  if(!call) {
+    //return (FB::JSAPIPtr) NULL; //boost::make_shared<CallAPI>(m_host, &_lin, call); // NULL;
   }
   else {
-    //callee = uri;
-    return false;
+	return boost::make_shared<CallAPI>(m_host, &mutex, &lin, call);  
   }
 }
 

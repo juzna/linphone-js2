@@ -13,11 +13,11 @@
 #define rmethod2(name, func) registerMethod(#name, make_method(this, &AddressAPI::call_##func))
 #define rproperty(name) registerProperty(#name, make_property(this, &AddressAPI::get_##name, &AddressAPI::set_##name))
 #define rpropertyg(name) registerProperty(#name, make_property(this, &AddressAPI::get_##name))
+#define Lo Lock lck(_mutex, NULL);
 
 
-
-AddressAPI::AddressAPI(const FB::BrowserHostPtr& host, LinphoneAddress *address, bool isOwner)
- : m_host(host), _address(address), _isOwner(isOwner)
+AddressAPI::AddressAPI(const FB::BrowserHostPtr& host, pthread_mutex_t *mutex, LinphoneAddress *address, bool isOwner)
+ : m_host(host), _mutex(mutex), _address(address), _isOwner(isOwner)
 {
   printf("AddressAPI instance: %u\n", (void *) address);
   

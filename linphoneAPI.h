@@ -38,7 +38,7 @@ public:
     void call_addProxy(std::string proxy, std::string identity);
     bool call_accept(void);
     bool call_terminate(void);
-	bool call_call(std::string uri);
+	FB::JSAPIPtr call_call(std::string uri);
 	
 	// Properties methods
 	bool get_running(void);

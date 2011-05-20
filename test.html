@@ -23,9 +23,9 @@ var el = document.getElementById('testPlugin');
 <br />
 
 
-<input type="button" onclick="console.log(el.call('571891104'))" value="Call 1" />
-<input type="button" onclick="console.log(el.call('sip:571891104'))" value="Call 2" />
-<input type="button" onclick="console.log(el.call('sip:571891104@ipbx'))" value="Call" />
-<input type="button" onclick="console.log(el.call('sip:571891104@sip.helemik.cz'))" value="Call" />
-<input type="button" onclick="console.log(el.call('sip:571891104@vh027.ipex.cz'))" value="Call" />
+<input type="button" onclick="console.log(c = el.call('571891104'))" value="Call 1" />
+<input type="button" onclick="console.log(c = el.call('sip:571891104'))" value="Call 2" />
+<input type="button" onclick="console.log(c = el.call('sip:571891104@ipbx'))" value="Call" />
+<input type="button" onclick="console.log(c = el.call('sip:571891104@sip.helemik.cz'))" value="Call" />
+<input type="button" onclick="console.log(c = el.call('sip:571891104@vh027.ipex.cz'))" value="Call" />
 <br />

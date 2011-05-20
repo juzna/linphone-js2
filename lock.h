@@ -1,10 +1,8 @@
 
+#include <pthread.h>
 
 #ifndef H_lock
 #define H_lock
-
-
-#include <pthread.h>
 
 
 /* Lock class */

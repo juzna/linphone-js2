@@ -12,7 +12,7 @@
 class CallAPI : public FB::JSAPIAuto
 {
 public:
-    CallAPI(const FB::BrowserHostPtr&, LinphoneCore **, LinphoneCall*);
+    CallAPI(const FB::BrowserHostPtr&, pthread_mutex_t*, LinphoneCore **, LinphoneCall*);
     virtual ~CallAPI();
 
     // Exported methods
@@ -26,13 +26,17 @@ public:
     int get_reason(void);
     int get_duration(void);
     bool get_paused(void);
+    FB::JSAPIPtr get_remote(void);
+    std::string get_remote_str(void);
     
 private:
-    linphoneWeakPtr m_plugin;
+//    linphoneWeakPtr m_plugin;
     FB::BrowserHostPtr m_host;
+    pthread_mutex_t *_mutex;
     
     LinphoneCore **_lin;
     LinphoneCall *_call;
+    FB::JSAPIPtr _remote;
 };
 
 #endif // H_CallAPI

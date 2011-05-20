@@ -12,7 +12,7 @@
 class AddressAPI : public FB::JSAPIAuto
 {
 public:
-    AddressAPI(const FB::BrowserHostPtr& host, LinphoneAddress*, bool);
+    AddressAPI(const FB::BrowserHostPtr& host, pthread_mutex_t*, LinphoneAddress*, bool);
     virtual ~AddressAPI();
 
     // Exported methods
@@ -33,6 +33,7 @@ public:
 private:
     linphoneWeakPtr m_plugin;
     FB::BrowserHostPtr m_host;
+    pthread_mutex_t *_mutex;
     bool _isOwner; // Whether we're owner of LinphoneAddress memory
     LinphoneAddress *_address;
 
