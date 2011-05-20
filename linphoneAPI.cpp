@@ -9,8 +9,10 @@
 #include "DOM/Document.h"
 
 #include "linphoneAPI.h"
+#include "sampleAPI.h"
 #include "common.h"
 #include "lock.h"
+
 
 ///////////////////////////////////////////////////////////////////////////////
 /// @fn linphoneAPI::linphoneAPI(const linphonePtr& plugin, const FB::BrowserHostPtr host)
@@ -22,7 +24,8 @@
 /// @see FB::JSAPIAuto::registerProperty
 /// @see FB::JSAPIAuto::registerEvent
 ///////////////////////////////////////////////////////////////////////////////
-linphoneAPI::linphoneAPI(const linphonePtr& plugin, const FB::BrowserHostPtr& host) : m_plugin(plugin), m_host(host)
+linphoneAPI::linphoneAPI(const linphonePtr& plugin, const FB::BrowserHostPtr& host)
+  : m_plugin(plugin), m_host(host), _sample()
 {
   printf("creating new plugin instance\n");
   
@@ -39,6 +42,7 @@ linphoneAPI::linphoneAPI(const linphonePtr& plugin, const FB::BrowserHostPtr& ho
   // Register exported properties
   rpropertyg(running);
   rpropertyg(registered);
+  rpropertyg(sample);
   
   // Initialize mutex
   pthread_mutex_init(&mutex, NULL);  
@@ -127,7 +131,8 @@ bool linphoneAPI::call_init(void) {
     linphone_core_set_firewall_policy(lin, LinphonePolicyUseStun);
     linphone_core_set_stun_server(lin, "stun.helemik.cz");
     
-    linphone_core_enable_video(lin, false, false);
+    linphone_core_enable_video(lin, true, true);
+	linphone_core_enable_video_preview(lin, true);
     linphone_core_set_sip_port(lin, 6060);
 	
     return true;
@@ -283,6 +288,14 @@ bool linphoneAPI::call_call(std::string uri) {
   }
 }
 
+FB::JSAPIPtr linphoneAPI::get_sample(void) {
+  // Create instance if not yet exists
+  if(!_sample.use_count()) {
+	_sample.reset(new sampleAPI(m_host));
+  }
+  
+  return _sample;
+}
 
 
 /*

@@ -39,7 +39,7 @@ public:
 	// Properties methods
 	bool get_running(void);
 	bool get_registered(void);
-
+	FB::JSAPIPtr get_sample(void);
 	
 	
     void lock() { pthread_mutex_lock(&mutex); }
@@ -75,6 +75,8 @@ private:
     LinphoneCoreVTable lin_vtable; // Linphone callback methods table
     pthread_mutex_t mutex; // Mutex for serializing core calls
     ortp_thread_t iterate_thread; // Iterate thread
+    
+    FB::JSAPIPtr _sample;
     
 public:
 	bool iterate_thread_running; // Indicate, when should iterate thread stop
