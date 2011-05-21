@@ -2,11 +2,11 @@
 #include <sstream>
 #include "JSAPIAuto.h"
 #include "BrowserHostWrapper.h"
+#include "types.h"
+#include <stdio.h>
 
 #ifndef H_sampleAPI
 #define H_sampleAPI
-
-#include "linphoneAPI.h"
 
 
 class sampleAPI : public FB::JSAPIAuto

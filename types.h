@@ -1,6 +1,9 @@
 
 #include "lock.h"
 
+#include <linphonecore.h>
+#include "private.h" /*coreapi/private.h, needed for LINPHONE_VERSION */
+
 // Core
 class linphone;
 FB_FORWARD_PTR(linphone);

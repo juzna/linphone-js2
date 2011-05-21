@@ -2,11 +2,10 @@
 #include <sstream>
 #include "JSAPIAuto.h"
 #include "BrowserHostWrapper.h"
+#include "types.h"
 
 #ifndef H_AddressAPI
 #define H_AddressAPI
-
-#include "linphoneAPI.h"
 
 
 class AddressAPI : public FB::JSAPIAuto

@@ -4,8 +4,6 @@
 
 #include "CallAPI.h"
 #include "AddressAPI.h"
-// #include "common.h"
-#include "lock.h"
 
 
 #define mmethod(name) make_method(this, &CallAPI::name)

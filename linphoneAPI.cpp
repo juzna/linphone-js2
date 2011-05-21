@@ -4,6 +4,7 @@
 
 \**********************************************************/
 
+#include <stdio.h>
 #include "JSObject.h"
 #include "variant_list.h"
 #include "DOM/Document.h"
@@ -11,9 +12,14 @@
 #include "linphoneAPI.h"
 #include "sampleAPI.h"
 #include "CallAPI.h"
-#include "common.h"
-#include "lock.h"
-#include <stdio.h>
+
+
+#define mmethod(name) make_method(this, &linphoneAPI::name)
+#define rmethod(name) registerMethod(#name, make_method(this, &linphoneAPI::call_##name))
+#define rmethod2(name, func) registerMethod(#name, make_method(this, &linphoneAPI::call_##func))
+#define rproperty(name) registerProperty(#name, make_property(this, &linphoneAPI::get_##name, &linphoneAPI::set_##name))
+#define rpropertyg(name) registerProperty(#name, make_property(this, &linphoneAPI::get_##name))
+
 
 // Original callbacks from linphone core
 #define GLC if(!linphone_core_get_user_data(lc)) printf("not found linphone api\n"); else ((linphoneAPI*) linphone_core_get_user_data(lc))

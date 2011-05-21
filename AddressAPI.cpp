@@ -1,10 +1,9 @@
+#include <stdio.h>
 #include "JSObject.h"
 #include "variant_list.h"
 #include "DOM/Document.h"
 
 #include "AddressAPI.h"
-// #include "common.h"
-#include "lock.h"
 
 
 

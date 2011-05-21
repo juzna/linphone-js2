@@ -19,7 +19,6 @@
 #ifndef H_linphoneAPI
 #define H_linphoneAPI
 
-#include "lock.h"
 #define Lo Lock lck(&mutex, NULL);
 
 

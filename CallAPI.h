@@ -4,9 +4,6 @@
 #include "BrowserHostWrapper.h"
 #include "types.h"
 
-#include <linphonecore.h>
-#include "private.h" /*coreapi/private.h, needed for LINPHONE_VERSION */
-
 
 #ifndef H_CallAPI
 #define H_CallAPI
