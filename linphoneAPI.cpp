@@ -64,6 +64,7 @@ linphoneAPI::linphoneAPI(const linphonePtr& plugin, const FB::BrowserHostPtr& ho
   rpropertyg(inCall);
   rproperty(videoEnabled);
   rproperty(videoPreviewEnabled);
+  rproperty(videoNativeId);
   
   
   // Initialize mutex

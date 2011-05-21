@@ -50,6 +50,8 @@ public:
 	void set_videoEnabled(bool x) { Lo; linphone_core_enable_video(lin, x, x); }
 	bool get_videoPreviewEnabled(void) { Lo; return linphone_core_video_preview_enabled(lin); }
 	void set_videoPreviewEnabled(bool x) { Lo; linphone_core_enable_video_preview(lin, x); }
+	unsigned long get_videoNativeId(void) { Lo; return linphone_core_get_native_video_window_id(lin); }
+	void set_videoNativeId(unsigned long x) { Lo; linphone_core_set_native_video_window_id(lin, x); }
 	
 	
     void lock() { pthread_mutex_lock(&mutex); }

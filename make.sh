@@ -6,4 +6,4 @@ cd ../../;
 cd build;
 make linphone
 
-cp ./bin/linphone/nplinphone.so /home/juzna/.mozilla/plugins/
+#cp ./bin/linphone/nplinphone.so /home/juzna/.mozilla/plugins/

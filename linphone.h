@@ -12,6 +12,7 @@
 #include "PluginWindow.h"
 #include "PluginEvents/MouseEvents.h"
 #include "PluginEvents/AttachedEvent.h"
+#include "PluginEvents/DrawingEvents.h"
 
 #include "PluginCore.h"
 
@@ -52,6 +53,7 @@ public:
     virtual bool onMouseMove(FB::MouseMoveEvent *evt, FB::PluginWindow *);
     virtual bool onWindowAttached(FB::AttachedEvent *evt, FB::PluginWindow *);
     virtual bool onWindowDetached(FB::DetachedEvent *evt, FB::PluginWindow *);
+    virtual bool draw(FB::RefreshEvent *evt, FB::PluginWindow*);
     /** END EVENTDEF -- DON'T CHANGE THIS LINE **/
 };
 

@@ -11,6 +11,13 @@
 
 #include "linphone.h"
 
+// TO BE REMOVED WHEN NOT NEEDED ANYMORE
+#include <typeinfo>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <cstdio>
+
 ///////////////////////////////////////////////////////////////////////////////
 /// @fn linphone::StaticInitialize()
 ///
@@ -95,30 +102,36 @@ FB::JSAPIPtr linphone::createJSAPI()
 
 bool linphone::onMouseDown(FB::MouseDownEvent *evt, FB::PluginWindow *)
 {
-    //printf("Mouse down at: %d, %d\n", evt->m_x, evt->m_y);
+    printf("Mouse down at: %d, %d\n", evt->m_x, evt->m_y);
     return false;
 }
 
 bool linphone::onMouseUp(FB::MouseUpEvent *evt, FB::PluginWindow *)
 {
-    //printf("Mouse up at: %d, %d\n", evt->m_x, evt->m_y);
+    printf("Mouse up at: %d, %d\n", evt->m_x, evt->m_y);
     return false;
 }
 
 bool linphone::onMouseMove(FB::MouseMoveEvent *evt, FB::PluginWindow *)
 {
-    //printf("Mouse move at: %d, %d\n", evt->m_x, evt->m_y);
+    printf("Mouse move at: %d, %d\n", evt->m_x, evt->m_y);
     return false;
 }
-bool linphone::onWindowAttached(FB::AttachedEvent *evt, FB::PluginWindow *)
+bool linphone::onWindowAttached(FB::AttachedEvent *evt, FB::PluginWindow *win)
 {
     // The window is attached; act appropriately
+	printf("Window attached\n");
+	std::cout << typeid(*evt).name() << ", " << typeid(*win).name() << std::endl;
     return false;
 }
 
 bool linphone::onWindowDetached(FB::DetachedEvent *evt, FB::PluginWindow *)
 {
     // The window is about to be detached; act appropriately
+	printf("Window detached\n");
     return false;
 }
 
+bool linphone::draw(FB::RefreshEvent *evt, FB::PluginWindow*) {
+	printf("Draw please\n");
+}
