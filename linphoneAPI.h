@@ -56,6 +56,8 @@ public:
 	void set_videoPreviewEnabled(bool x) { Lo; linphone_core_enable_video_preview(lin, x); }
 	unsigned long get_videoNativeId(void) { Lo; return linphone_core_get_native_video_window_id(lin); }
 	void set_videoNativeId(unsigned long x) { Lo; linphone_core_set_native_video_window_id(lin, x); }
+	unsigned long get_videoPreviewNativeId(void) { Lo; return linphone_core_get_native_preview_window_id(lin); }
+	void set_videoPreviewNativeId(unsigned long x) { Lo; linphone_core_set_native_preview_window_id(lin, x); }
 	
 	std::string get_videoFilterName(void) {
 		Lo;

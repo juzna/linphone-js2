@@ -69,6 +69,7 @@ linphoneAPI::linphoneAPI(const linphonePtr& plugin, const FB::BrowserHostPtr& ho
   rproperty(videoEnabled);
   rproperty(videoPreviewEnabled);
   rproperty(videoNativeId);
+  rproperty(videoPreviewNativeId);
   rpropertyg(videoFilterName);
   
   

@@ -10,6 +10,7 @@
 #define H_linphonePLUGIN
 
 #include "PluginWindow.h"
+#include "PluginWindowX11.h"
 #include "PluginEvents/MouseEvents.h"
 #include "PluginEvents/AttachedEvent.h"
 #include "PluginEvents/DrawingEvents.h"

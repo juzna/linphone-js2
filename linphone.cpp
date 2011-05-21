@@ -122,6 +122,12 @@ bool linphone::onWindowAttached(FB::AttachedEvent *evt, FB::PluginWindow *win)
     // The window is attached; act appropriately
 	printf("Window attached\n");
 	std::cout << typeid(*evt).name() << ", " << typeid(*win).name() << std::endl;
+	
+	// Assume it's X11 win (we can do it now) TODO: change this!
+	FB::PluginWindowX11 *win2 = (FB::PluginWindowX11*) win;
+	Window w3 = win2->getWindow();
+	printf("Window ID is %lu\n", w3);
+	
     return false;
 }
 
