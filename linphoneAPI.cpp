@@ -351,8 +351,14 @@ void linphoneAPI::lcb_global_state_changed(LinphoneGlobalState gstate, const cha
 
 void linphoneAPI::lcb_call_state_changed(LinphoneCall *call, LinphoneCallState cstate, const char *message) {
 	unsigned long index = (unsigned long) linphone_call_get_user_pointer(call);
-	if(!index) throw new FB::script_error("Call has no stored index to CallAPI");
-	if(!_call_list.count(index)) throw new FB::script_error("CallAPI not found in registry");
+	if(!index) {
+		printf("Call %u has no stored index to CallAPI (%d: %s)\n", call, cstate, message);
+		return;
+	}
+	if(!_call_list.count(index)) {
+		printf("CallAPI %d not found in registry\n", index);
+		return;
+	}
 	
 	printf("Call %d state changed to %d - %s\n", index, cstate, message);
 	fire_callStateChanged(_call_list[index], cstate, message);
