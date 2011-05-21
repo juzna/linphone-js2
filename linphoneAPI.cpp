@@ -362,6 +362,13 @@ void linphoneAPI::lcb_call_state_changed(LinphoneCall *call, LinphoneCallState c
 	
 	printf("Call %d state changed to %d - %s\n", index, cstate, message);
 	fire_callStateChanged(_call_list[index], cstate, message);
+	
+	// Call can be released
+	if(cstate == LinphoneCallReleased) {
+		// Remove from call list
+		linphone_call_set_user_pointer(call, (void*) NULL);
+		_call_list.erase(index);
+	}
 }
 
 void linphoneAPI::lcb_registration_state_changed(LinphoneProxyConfig *cfg, LinphoneRegistrationState cstate, const char *message) {
