@@ -13,7 +13,7 @@
 #include "CallAPI.h"
 #include "common.h"
 #include "lock.h"
-
+#include <stdio.h>
 
 // Original callbacks from linphone core
 #define GLC if(!linphone_core_get_user_data(lc)) printf("not found linphone api\n"); else ((linphoneAPI*) linphone_core_get_user_data(lc))
@@ -56,15 +56,20 @@ linphoneAPI::linphoneAPI(const linphonePtr& plugin, const FB::BrowserHostPtr& ho
   rmethod(accept);
   rmethod(terminate);
   rmethod(call);
+  rmethod(disableLogs);
+  rmethod(enableLogs);
+  rmethod(enableStun);
   
   // Register exported properties
   rpropertyg(running);
   rpropertyg(registered);
   rpropertyg(sample);
   rpropertyg(inCall);
+  rpropertyg(logging);
   rproperty(videoEnabled);
   rproperty(videoPreviewEnabled);
   rproperty(videoNativeId);
+  rpropertyg(videoFilterName);
   
   
   // Initialize mutex
@@ -123,24 +128,6 @@ bool linphoneAPI::call_init(void) {
     lin_vtable.registration_state_changed = cb_registration_state_changed;
     lin_vtable.auth_info_requested = cb_auth_info_requested;
     
-/*    lin_vtable.show 			= (ShowInterfaceCb) stub;
-    lin_vtable.inv_recv 		= mcb(lcb_call_received);
-    lin_vtable.bye_recv 		= mcb(lcb_bye_received);
-    lin_vtable.notify_recv 		= (NotifyReceivedCb) stub;
-    lin_vtable.new_unknown_subscriber 	= (NewUnknownSubscriberCb) stub;
-    lin_vtable.auth_info_requested 	= mcb(lcb_auth_info_requested);
-    lin_vtable.display_status		= mcb(lcb_display_status);
-    lin_vtable.display_message		= mcb(lcb_display_something);
-    lin_vtable.display_warning		= mcb(lcb_display_warning);
-    lin_vtable.display_url		= mcb(lcb_display_url);
-    lin_vtable.display_question		= (DisplayQuestionCb) stub;
-    lin_vtable.call_log_updated		= (CallLogUpdated) stub;
-    lin_vtable.text_received		= mcb(lcb_text_received);
-    lin_vtable.general_state		= mcb(lcb_general_state);
-    lin_vtable.dtmf_received		= mcb(lcb_dtmf_received);
-    lin_vtable.refer_received		= (ReferReceived) stub;
-    lin_vtable.buddy_info_updated	= (BuddyInfoUpdated) stub;
-*/    
     char configfile_name[PATH_MAX];
     snprintf(configfile_name, PATH_MAX, "%s/.linphonerc", getenv("HOME"));
     
@@ -151,16 +138,10 @@ bool linphoneAPI::call_init(void) {
       return false;
     }
     
-    // TODO: move this to separate methods
-    // Disable/enable logs
+    // Disable logs by default, can be enabled by enableLogs() method
     linphone_core_disable_logs();
-    //linphone_core_enable_logs(stdout);
     
-    linphone_core_set_firewall_policy(lin, LinphonePolicyUseStun);
-    linphone_core_set_stun_server(lin, "stun.helemik.cz");
-    
-    linphone_core_enable_video(lin, true, true);
-	linphone_core_enable_video_preview(lin, true);
+    // TODO: remove later
     linphone_core_set_sip_port(lin, 6060);
 	
     return true;
@@ -213,6 +194,9 @@ bool linphoneAPI::call_quit(void) {
   ortp_thread_join(iterate_thread,NULL);
   printf("iterate thread joined\n");
   
+  // Close log file
+  if(_logging_fp) fclose(_logging_fp);
+  
   // Destroy linphone core
   linphone_core_destroy(lin);
   lin = NULL;
@@ -226,6 +210,46 @@ bool linphoneAPI::call_quit(void) {
 bool linphoneAPI::get_running(void) {
   return lin && iterate_thread_running;
 }
+
+/**
+ * Disable logging
+ */
+void linphoneAPI::call_disableLogs(void) {
+	linphone_core_disable_logs();
+	_logging = "";
+}
+
+/**
+ * Enable logging to file (or to stdout when dash is passed)
+ */
+void linphoneAPI::call_enableLogs(std::string file) {
+	if(file == "-") {
+		linphone_core_enable_logs(stdout);
+		_logging = file;
+	}
+	else {
+		if(_logging_fp) fclose(_logging_fp); // close of file
+		FILE *fp = fopen(file.c_str(), "w");
+		if(fp) {
+			_logging = file;
+			_logging_fp = fp;
+			linphone_core_enable_logs(fp);
+		}
+		else throw FB::script_error("Unable to open file");
+	}
+}
+
+std::string linphoneAPI::get_logging(void) {
+	return _logging;
+}
+
+void linphoneAPI::call_enableStun(std::string server) {
+	linphone_core_set_firewall_policy(lin, LinphonePolicyUseStun);
+    linphone_core_set_stun_server(lin, server.c_str());
+}
+
+
+
 
 /**
  * Add authentication info

@@ -31,6 +31,11 @@ el.addEventListener('authInfoRequested', function(user, realm) {
 
 function completeStart() {
 	console.log('Init:', el.init());
+	
+	// Setup
+	el.enableLogs("/tmp/linphone-js.log");
+	el.enableStun("stun.helemik.cz");
+	
 	console.log('Start:', el.start());
 	console.log('Proxy:', el.addProxy('sip:sip.helemik.cz', 'sip:571891103@sip.helemik.cz'));
 	console.log('Auth:', el.addAuthInfo("571891103", "\"ipbx\"", "dummypass1A"));

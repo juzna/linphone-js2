@@ -40,11 +40,15 @@ public:
     bool call_accept(void);
     bool call_terminate(void);
 	FB::JSAPIPtr call_call(std::string uri);
+	void call_disableLogs(void);
+	void call_enableLogs(std::string);
+	void call_enableStun(std::string);
 	
 	// Properties methods
 	bool get_running(void);
 	bool get_registered(void);
 	FB::JSAPIPtr get_sample(void);
+	std::string get_logging(void);
 	bool get_inCall(void) { Lo; return linphone_core_in_call(lin); }
 	bool get_videoEnabled(void) { Lo; return linphone_core_video_enabled(lin); }
 	void set_videoEnabled(bool x) { Lo; linphone_core_enable_video(lin, x, x); }
@@ -52,6 +56,14 @@ public:
 	void set_videoPreviewEnabled(bool x) { Lo; linphone_core_enable_video_preview(lin, x); }
 	unsigned long get_videoNativeId(void) { Lo; return linphone_core_get_native_video_window_id(lin); }
 	void set_videoNativeId(unsigned long x) { Lo; linphone_core_set_native_video_window_id(lin, x); }
+	
+	std::string get_videoFilterName(void) {
+		Lo;
+		if (lin->previewstream) {
+			return lin->previewstream->display_name;
+		}
+	}
+
 	
 	
     void lock() { pthread_mutex_lock(&mutex); }
@@ -98,6 +110,8 @@ private:
     pthread_mutex_t mutex; // Mutex for serializing core calls
     ortp_thread_t iterate_thread; // Iterate thread
     
+    std::string _logging;
+    FILE *_logging_fp;
     FB::JSAPIPtr _sample;
     std::map<unsigned long, CallAPIPtr > _call_list; // We handle referenced calls here
     unsigned long _call_list_counter;
