@@ -59,6 +59,7 @@ linphoneAPI::linphoneAPI(const linphonePtr& plugin, const FB::BrowserHostPtr& ho
   rmethod(disableLogs);
   rmethod(enableLogs);
   rmethod(enableStun);
+  rmethod(embedVideo);
   
   // Register exported properties
   rpropertyg(running);
@@ -71,6 +72,7 @@ linphoneAPI::linphoneAPI(const linphonePtr& plugin, const FB::BrowserHostPtr& ho
   rproperty(videoNativeId);
   rproperty(videoPreviewNativeId);
   rpropertyg(videoFilterName);
+  rpropertyg(pluginWindowId);
   
   
   // Initialize mutex
@@ -250,6 +252,18 @@ void linphoneAPI::call_enableStun(std::string server) {
 }
 
 
+void linphoneAPI::call_embedVideo(void) {
+	if(!lin) return;
+	
+	linphone_core_set_native_preview_window_id(lin, get_pluginWindowId());
+}
+
+unsigned long linphoneAPI::get_pluginWindowId(void) {
+	FB::PluginWindow *win = getPlugin()->GetWindow();
+	FB::PluginWindowX11 *win2 = (FB::PluginWindowX11 *) win;
+	
+	return win2->getWindow(); // TODO: gotta change this!
+}	
 
 
 /**

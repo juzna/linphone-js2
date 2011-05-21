@@ -43,6 +43,7 @@ public:
 	void call_disableLogs(void);
 	void call_enableLogs(std::string);
 	void call_enableStun(std::string);
+	void call_embedVideo(void);
 	
 	// Properties methods
 	bool get_running(void);
@@ -57,7 +58,7 @@ public:
 	unsigned long get_videoNativeId(void) { Lo; return linphone_core_get_native_video_window_id(lin); }
 	void set_videoNativeId(unsigned long x) { Lo; linphone_core_set_native_video_window_id(lin, x); }
 	unsigned long get_videoPreviewNativeId(void) { Lo; return linphone_core_get_native_preview_window_id(lin); }
-	void set_videoPreviewNativeId(unsigned long x) { Lo; linphone_core_set_native_preview_window_id(lin, x); }
+	void set_videoPreviewNativeId(unsigned long x) { Lo; linphone_core_set_native_preview_window_id(lin, x); }	
 	
 	std::string get_videoFilterName(void) {
 		Lo;
@@ -65,6 +66,8 @@ public:
 			return lin->previewstream->display_name;
 		}
 	}
+
+	unsigned long get_pluginWindowId(void);
 
 	
 	
