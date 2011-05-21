@@ -42,7 +42,8 @@ static void cb_auth_info_requested(LinphoneCore *lc, const char *realm, const ch
 /// @see FB::JSAPIAuto::registerEvent
 ///////////////////////////////////////////////////////////////////////////////
 linphoneAPI::linphoneAPI(const linphonePtr& plugin, const FB::BrowserHostPtr& host)
-  : m_plugin(plugin), m_host(host), _sample()
+  : m_plugin(plugin), m_host(host), _sample(),
+    _call_list(), _call_list_counter(0)
 {
   printf("creating new plugin instance\n");
   
@@ -300,6 +301,24 @@ bool linphoneAPI::get_registered(void) {
   else return false;
 }
 
+FB::JSAPIPtr linphoneAPI::_add_call(LinphoneCall *call) {
+	unsigned long index = ++_call_list_counter;
+	printf("Creating new call under index %u\n", index);
+
+	CallAPIPtr cptr = boost::make_shared<CallAPI>(m_host, &mutex, &lin, call);  
+	
+	// Store in map
+	_call_list.insert(std::pair<int, CallAPIPtr>(index, cptr));
+	
+	// Set linphone pointer
+	linphone_call_set_user_pointer(call, (void*) index);
+	
+	return cptr;
+}
+
+
+	
+
 /**
  * Initialize new call
  */
@@ -308,10 +327,13 @@ FB::JSAPIPtr linphoneAPI::call_call(std::string uri) {
   LinphoneCall *call = linphone_core_invite(lin, uri.c_str());
     
   if(!call) {
+	  printf("Unable to place call\n");
+	//  throw FB::script_error("Unable to place call");
     //return (FB::JSAPIPtr) NULL; //boost::make_shared<CallAPI>(m_host, &_lin, call); // NULL;
   }
   else {
-	return boost::make_shared<CallAPI>(m_host, &mutex, &lin, call);  
+	printf("Call initialized, storing to map\n");
+	return _add_call(call);//boost::make_shared<CallAPI>(m_host, &mutex, &lin, call);  
   }
 }
 

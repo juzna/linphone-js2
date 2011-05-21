@@ -82,6 +82,10 @@ public:
 	void lcb_call_state_changed(LinphoneCall *call, LinphoneCallState cstate, const char *message);
 	void lcb_registration_state_changed(LinphoneProxyConfig *cfg, LinphoneRegistrationState cstate, const char *message);
 	void lcb_auth_info_requested(const char *realm, const char *username);
+	
+
+	// Internal
+	FB::JSAPIPtr _add_call(LinphoneCall *call);
 
 private:
     linphoneWeakPtr m_plugin;
@@ -93,6 +97,8 @@ private:
     ortp_thread_t iterate_thread; // Iterate thread
     
     FB::JSAPIPtr _sample;
+    std::map<unsigned long, CallAPIPtr > _call_list; // We handle referenced calls here
+    unsigned long _call_list_counter;
     
 public:
 	bool iterate_thread_running; // Indicate, when should iterate thread stop
