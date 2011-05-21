@@ -17,8 +17,18 @@
 
 // Original callbacks from linphone core
 #define GLC if(!linphone_core_get_user_data(lc)) printf("not found linphone api\n"); else ((linphoneAPI*) linphone_core_get_user_data(lc))
-static void cb_global_state(LinphoneCore *lc, LinphoneGlobalState gstate, const char *msg) { GLC->lcb_global_state(lc, gstate, msg); }
-
+static void cb_global_state_changed(LinphoneCore *lc, LinphoneGlobalState gstate, const char *msg) {
+	GLC->lcb_global_state_changed(gstate, msg);
+}
+static void cb_call_state_changed(LinphoneCore *lc, LinphoneCall *call, LinphoneCallState cstate, const char *message) {
+	GLC->lcb_call_state_changed(call, cstate, message);
+}
+static void cb_registration_state_changed(LinphoneCore *lc, LinphoneProxyConfig *cfg, LinphoneRegistrationState cstate, const char *message) {
+	GLC->lcb_registration_state_changed(cfg, cstate, message);
+}
+static void cb_auth_info_requested(LinphoneCore *lc, const char *realm, const char *username) {
+	GLC->lcb_auth_info_requested(realm, username);
+}
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -106,7 +116,11 @@ bool linphoneAPI::call_init(void) {
 	  
     // Initialize callback table
     memset(&lin_vtable, 0, sizeof(LinphoneCoreVTable));
-    lin_vtable.global_state_changed = cb_global_state;
+    lin_vtable.global_state_changed = cb_global_state_changed;
+    lin_vtable.call_state_changed = cb_call_state_changed;
+    lin_vtable.registration_state_changed = cb_registration_state_changed;
+    lin_vtable.auth_info_requested = cb_auth_info_requested;
+    
 /*    lin_vtable.show 			= (ShowInterfaceCb) stub;
     lin_vtable.inv_recv 		= mcb(lcb_call_received);
     lin_vtable.bye_recv 		= mcb(lcb_bye_received);
@@ -313,8 +327,26 @@ FB::JSAPIPtr linphoneAPI::get_sample(void) {
 
 
 // Events
-void linphoneAPI::lcb_global_state(LinphoneCore * lc, LinphoneGlobalState gstate, const char *msg) {
+void linphoneAPI::lcb_global_state_changed(LinphoneGlobalState gstate, const char *msg) {
 	fire_globalStateChanged(gstate, msg);
+}
+
+void linphoneAPI::lcb_call_state_changed(LinphoneCall *call, LinphoneCallState cstate, const char *message) {
+/*	unsigned long index = (unsigned long) linphone_call_get_user_pointer(call);
+	if(!index) throw new FB::script_error("Call has no stored index to CallAPI");
+	if(!_call_list.count(index)) throw new FB::script_error("CallAPI not found in registry");
+	
+	printf("Call %d state changed to %d - %s\n", index, cstate, message);
+	fire_callStateChanged(_call_list[index], cstate, message);*/
+}
+
+void linphoneAPI::lcb_registration_state_changed(LinphoneProxyConfig *cfg, LinphoneRegistrationState cstate, const char *message) {
+	// TODO: find proxy object and fire event with it
+	fire_registrationStateChanged(cstate, message);
+}
+
+void linphoneAPI::lcb_auth_info_requested(const char *realm, const char *username) {
+	fire_authInfoRequested(realm, username);
 }
 
 /*

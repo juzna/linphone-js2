@@ -10,6 +10,7 @@
 #include "JSAPIAuto.h"
 #include "BrowserHost.h"
 #include "linphone.h"
+#include "types.h"
 
 #include <linphonecore.h>
 #include "private.h" /*coreapi/private.h, needed for LINPHONE_VERSION */
@@ -58,7 +59,11 @@ public:
 	
 	
 	// Event helpers
-	FB_JSAPI_EVENT(globalStateChanged, 2, (const int, const std::string))
+	FB_JSAPI_EVENT(globalStateChanged, 2, (const int, const std::string)) // int state, string msg
+	FB_JSAPI_EVENT(callStateChanged, 3, (FB::JSAPIPtr, const int, const std::string)) // CallAPI call, int state, string msg
+	FB_JSAPI_EVENT(registrationStateChanged, 2, (const int, const std::string)) // (ProxyAPI call,) int state, string msg
+	FB_JSAPI_EVENT(authInfoRequested, 2, (std::string, std::string)); // string realm, string username
+	
 	
 	/*
 
@@ -73,7 +78,10 @@ public:
 
 
 	// Callbacks from linphone core
-	void lcb_global_state(LinphoneCore * lc, LinphoneGlobalState gstate, const char *msg);
+	void lcb_global_state_changed(LinphoneGlobalState gstate, const char *msg);
+	void lcb_call_state_changed(LinphoneCall *call, LinphoneCallState cstate, const char *message);
+	void lcb_registration_state_changed(LinphoneProxyConfig *cfg, LinphoneRegistrationState cstate, const char *message);
+	void lcb_auth_info_requested(const char *realm, const char *username);
 
 private:
     linphoneWeakPtr m_plugin;
