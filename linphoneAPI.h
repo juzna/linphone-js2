@@ -59,6 +59,11 @@ public:
 	void set_videoNativeId(unsigned long x) { Lo; linphone_core_set_native_video_window_id(lin, x); }
 	unsigned long get_videoPreviewNativeId(void) { Lo; return linphone_core_get_native_preview_window_id(lin); }
 	void set_videoPreviewNativeId(unsigned long x) { Lo; linphone_core_set_native_preview_window_id(lin, x); }	
+	boost::optional<FB::JSAPIPtr> get_actualCall(void);
+	bool get_autoAccept(void) { return _autoAccept; }
+	void set_autoAccept(bool x) { _autoAccept = x; }
+	
+	
 	
 	std::string get_videoFilterName(void) {
 		Lo;
@@ -84,17 +89,6 @@ public:
 	FB_JSAPI_EVENT(authInfoRequested, 2, (std::string, std::string)); // string realm, string username
 	
 	
-	/*
-
-    // Method echo
-    FB::variant echo(const FB::variant& msg);
-    
-    // Event helpers
-    FB_JSAPI_EVENT(fired, 3, (const FB::variant&, bool, int));
-    FB_JSAPI_EVENT(echo, 2, (const FB::variant&, const int));
-    FB_JSAPI_EVENT(notify, 0, ());
-*/
-
 
 	// Callbacks from linphone core
 	void lcb_global_state_changed(LinphoneGlobalState gstate, const char *msg);
@@ -120,6 +114,7 @@ private:
     FB::JSAPIPtr _sample;
     std::map<unsigned long, CallAPIPtr > _call_list; // We handle referenced calls here
     unsigned long _call_list_counter;
+    bool _autoAccept;
     
 public:
 	bool iterate_thread_running; // Indicate, when should iterate thread stop

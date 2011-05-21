@@ -73,6 +73,8 @@ linphoneAPI::linphoneAPI(const linphonePtr& plugin, const FB::BrowserHostPtr& ho
   rproperty(videoPreviewNativeId);
   rpropertyg(videoFilterName);
   rpropertyg(pluginWindowId);
+  rpropertyg(actualCall);
+  rproperty(autoAccept);
   
   
   // Initialize mutex
@@ -82,6 +84,10 @@ linphoneAPI::linphoneAPI(const linphonePtr& plugin, const FB::BrowserHostPtr& ho
   lin = NULL;
   iterate_thread = NULL;
   iterate_thread_running = false;
+  
+  // Load plugin params
+  boost::optional<std::string> x;
+  if(x = plugin->getParam("autoAccept")) _autoAccept = *x == "1";
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -440,15 +446,6 @@ void linphoneAPI::lcb_auth_info_requested(const char *realm, const char *usernam
 	fire_authInfoRequested(realm, username);
 }
 
-/*
-
-// Method echo
-FB::variant linphoneAPI::echo(const FB::variant& msg)
-{
-    static int n(0);
-    fire_echo(msg, n++);
-    return msg;
+boost::optional<FB::JSAPIPtr> linphoneAPI::get_actualCall(void) {
+	return boost::optional<FB::JSAPIPtr>();
 }
-
-*/
-
