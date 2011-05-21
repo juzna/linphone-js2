@@ -337,8 +337,19 @@ bool linphoneAPI::get_registered(void) {
   else return false;
 }
 
+
+/**
+ * Adds a new call to internal registry. If it's already there, just returns it
+ */
 FB::JSAPIPtr linphoneAPI::_add_call(LinphoneCall *call) {
-	unsigned long index = ++_call_list_counter;
+	unsigned long index;
+	
+	// Check if it's in registry
+	if(index = (unsigned long) linphone_call_get_user_pointer(call)) {
+		if(_call_list.count(index)) return _call_list[index];
+	}
+	
+	index = ++_call_list_counter;
 	printf("Creating new call under index %u\n", index);
 
 	CallAPIPtr cptr = boost::make_shared<CallAPI>(m_host, &mutex, &lin, call);  
@@ -368,7 +379,7 @@ FB::JSAPIPtr linphoneAPI::call_call(std::string uri) {
     //return (FB::JSAPIPtr) NULL; //boost::make_shared<CallAPI>(m_host, &_lin, call); // NULL;
   }
   else {
-	printf("Call initialized, storing to map\n");
+	printf("Call initialized, storing to map %lu\n", linphone_call_get_user_pointer(call));
 	return _add_call(call);//boost::make_shared<CallAPI>(m_host, &mutex, &lin, call);  
   }
 }
@@ -391,17 +402,26 @@ void linphoneAPI::lcb_global_state_changed(LinphoneGlobalState gstate, const cha
 
 void linphoneAPI::lcb_call_state_changed(LinphoneCall *call, LinphoneCallState cstate, const char *message) {
 	unsigned long index = (unsigned long) linphone_call_get_user_pointer(call);
-	if(!index) {
-		printf("Call %u has no stored index to CallAPI (%d: %s)\n", call, cstate, message);
-		return;
+	FB::JSAPIPtr cptr;
+	
+	if(index) {
+		if(_call_list.count(index)) { // found in registry
+			cptr = _call_list[index];
+		}
+		else {
+			printf("CallAPI %d not found in registry\n", index);
+			return;
+		}
 	}
-	if(!_call_list.count(index)) {
-		printf("CallAPI %d not found in registry\n", index);
-		return;
+	else {
+		printf("Call %lu has no stored index to CallAPI saving\n", call);
+		cptr = _add_call(call);
 	}
 	
+	// Fire event
 	printf("Call %d state changed to %d - %s\n", index, cstate, message);
-	fire_callStateChanged(_call_list[index], cstate, message);
+	fire_callStateChanged(cptr, cstate, message);
+	
 	
 	// Call can be released
 	if(cstate == LinphoneCallReleased) {
