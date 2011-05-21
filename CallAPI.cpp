@@ -20,6 +20,7 @@ CallAPI::CallAPI(const FB::BrowserHostPtr& host, pthread_mutex_t *mutex, Linphon
  : m_host(host), _mutex(mutex), _lin(lin), _call(call), _remote()
 {
   printf("CallAPI instance: %u\n", (void *) call);
+  linphone_call_ref(call);
   
   // Register exported methods
   rmethod(accept);
@@ -39,6 +40,8 @@ CallAPI::CallAPI(const FB::BrowserHostPtr& host, pthread_mutex_t *mutex, Linphon
 CallAPI::~CallAPI()
 {
   printf("deallocating CallAPI instance\n");
+  linphone_call_set_user_pointer(_call, (void*) NULL);
+  linphone_call_unref(_call);
 }
 
 bool CallAPI::call_accept(void) {
