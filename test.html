@@ -1,3 +1,4 @@
+<html><body>
 <object id="testPlugin" type="application/x-linphone" width="0" height="0" onload="alert('The plugin has loaded!');">
   <param name="onload" value="pluginCB" />
 </object>
@@ -6,8 +7,35 @@
 </object>
 
 <script language="javascript">
-var el = document.getElementById('testPlugin');
-var t1 = document.getElementById('test1');
+var el, t1;
+
+el = window.el = document.getElementById('testPlugin');
+t1 = document.getElementById('test1');
+
+el.addEventListener('globalStateChanged', function(state, msg) {
+	console.log('Global state changed:', state, msg);
+});
+
+el.addEventListener('registrationStateChanged', function(state, msg) {
+	console.log('Reg state changed:', state, msg);
+});
+
+el.addEventListener('callStateChanged', function(call, state, msg) {
+	console.log('Call state changed:', call, state, msg);
+	window.c = call;
+});
+
+el.addEventListener('authInfoRequested', function(user, realm) {
+	console.log('Auth info requested for', user, realm);
+});
+
+function completeStart() {
+	console.log('Init:', el.init());
+	console.log('Start:', el.start());
+	console.log('Proxy:', el.addProxy('sip:sip.helemik.cz', 'sip:571891103@sip.helemik.cz'));
+	console.log('Auth:', el.addAuthInfo("571891103", "\"ipbx\"", "dummypass1A"));
+}
+
 </script>
 
 <input type="button" onclick="alert(el.running);" value="Running?" />
@@ -19,6 +47,7 @@ var t1 = document.getElementById('test1');
 <input type="button" onclick='el.addAuthInfo("571891103", "\"ipbx\"", "dummypass1A")' value="Set auth info" />
 <input type="button" onclick="el.addProxy('sip:sip.helemik.cz', 'sip:571891103@sip.helemik.cz')" value="Add proxy" />
 <input type="button" onclick="alert(el.registered);" value="Registered?" />
+<input type="button" onclick="completeStart();" value="Start" />
 <br />
 
 <input type="button" onclick="el.accept()" value="Accept call" />
