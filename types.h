@@ -1,5 +1,10 @@
 
+#include "lock.h"
+
 // Core
+class linphone;
+FB_FORWARD_PTR(linphone);
+
 class linphoneAPI;
 typedef boost::shared_ptr<linphoneAPI> linphoneAPIPtr;
 typedef boost::weak_ptr<linphoneAPI> linphoneAPIWeakPtr;
