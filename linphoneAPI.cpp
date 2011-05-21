@@ -242,7 +242,6 @@ void linphoneAPI::call_addAuthInfo(std::string username, std::string realm, std:
  * Add proxy server
  */
 void linphoneAPI::call_addProxy(std::string proxy, std::string identity) {
-  {
     Lock lck(&mutex, "add proxy");
     
     LinphoneProxyConfig *cfg;
@@ -257,9 +256,6 @@ void linphoneAPI::call_addProxy(std::string proxy, std::string identity) {
 
     // set config as default proxy
     linphone_core_set_default_proxy(lin, cfg);
-  }
-    
-  //FireEvent("onProxyAdded", FB::variant_list_of(proxy)(identity));
 }
 
 /**
@@ -354,12 +350,12 @@ void linphoneAPI::lcb_global_state_changed(LinphoneGlobalState gstate, const cha
 }
 
 void linphoneAPI::lcb_call_state_changed(LinphoneCall *call, LinphoneCallState cstate, const char *message) {
-/*	unsigned long index = (unsigned long) linphone_call_get_user_pointer(call);
+	unsigned long index = (unsigned long) linphone_call_get_user_pointer(call);
 	if(!index) throw new FB::script_error("Call has no stored index to CallAPI");
 	if(!_call_list.count(index)) throw new FB::script_error("CallAPI not found in registry");
 	
 	printf("Call %d state changed to %d - %s\n", index, cstate, message);
-	fire_callStateChanged(_call_list[index], cstate, message);*/
+	fire_callStateChanged(_call_list[index], cstate, message);
 }
 
 void linphoneAPI::lcb_registration_state_changed(LinphoneProxyConfig *cfg, LinphoneRegistrationState cstate, const char *message) {
