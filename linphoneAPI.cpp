@@ -68,6 +68,7 @@ linphoneAPI::linphoneAPI(const linphonePtr& plugin, const FB::BrowserHostPtr& ho
   rmethod(enableLogs);
   rmethod(enableStun);
   rmethod(embedVideo);
+  rmethod(embedVideoPreview);
   
   // Register exported properties
   rpropertyg(running);
@@ -293,7 +294,16 @@ void linphoneAPI::call_embedVideo(void) {
 	return embedVideo();
 }
 
+void linphoneAPI::call_embedVideoPreview(void) {
+	CheckAndLock("embed");
+	return embedVideoPreview();
+}
+
 void linphoneAPI::embedVideo(void) {
+	linphone_core_set_native_video_window_id(lin, getPlugin()->getNativeWindowId());
+}
+
+void linphoneAPI::embedVideoPreview(void) {
 	linphone_core_set_native_preview_window_id(lin, getPlugin()->getNativeWindowId());
 }
 

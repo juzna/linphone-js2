@@ -43,6 +43,7 @@ public:
 	void call_enableLogs(std::string);
 	void call_enableStun(std::string);
 	void call_embedVideo(void);
+	void call_embedVideoPreview(void);
 	
 	// Properties methods
 	bool get_running(void);
@@ -93,6 +94,7 @@ public:
     void addAuthInfo(std::string username, std::string realm, std::string password);
     void addProxy(std::string proxy, std::string identity);
     void embedVideo(void);
+    void embedVideoPreview(void);
 	
 
 private:
