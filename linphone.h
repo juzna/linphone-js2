@@ -10,12 +10,17 @@
 #define H_linphonePLUGIN
 
 #include "PluginWindow.h"
-#include "PluginWindowX11.h"
 #include "PluginEvents/MouseEvents.h"
 #include "PluginEvents/AttachedEvent.h"
 #include "PluginEvents/DrawingEvents.h"
 
 #include "PluginCore.h"
+
+#if FB_X11
+#include "PluginWindowX11.h"
+#elif FB_WIN
+#include "PluginWindowWin.h"
+#endif
 
 
 FB_FORWARD_PTR(linphone)
@@ -38,6 +43,8 @@ public:
     // value of the "windowless" param tag, remove this method or return
     // FB::PluginCore::isWindowless()
     virtual bool isWindowless() { return false; }
+    
+    virtual unsigned long getNativeWindowId(void);
 
     BEGIN_PLUGIN_EVENT_MAP()
         EVENTTYPE_CASE(FB::MouseDownEvent, onMouseDown, FB::PluginWindow)

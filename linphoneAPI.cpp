@@ -225,6 +225,7 @@ bool linphoneAPI::call_quit(void) {
   }
   
   // Stop iterating
+  printf("joining iterate thread\n");
   iterate_thread_running = false;
   ortp_thread_join(iterate_thread,NULL);
   printf("iterate thread joined\n");
@@ -293,14 +294,11 @@ void linphoneAPI::call_embedVideo(void) {
 }
 
 void linphoneAPI::embedVideo(void) {
-	linphone_core_set_native_preview_window_id(lin, get_pluginWindowId());
+	linphone_core_set_native_preview_window_id(lin, getPlugin()->getNativeWindowId());
 }
 
 unsigned long linphoneAPI::get_pluginWindowId(void) {
-	FB::PluginWindow *win = getPlugin()->GetWindow();
-	FB::PluginWindowX11 *win2 = (FB::PluginWindowX11 *) win;
-	
-	return win2->getWindow(); // TODO: gotta change this!
+	return getPlugin()->getNativeWindowId();
 }	
 
 
