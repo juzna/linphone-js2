@@ -98,6 +98,10 @@ public:
 
 	// Internal
 	FB::JSAPIPtr _add_call(LinphoneCall *call);
+    void addAuthInfo(std::string username, std::string realm, std::string password);
+    void addProxy(std::string proxy, std::string identity);
+    void embedVideo(void);
+	
 
 private:
     linphoneWeakPtr m_plugin;
@@ -106,6 +110,7 @@ private:
     LinphoneCore *lin;	// Linphone core object
     LinphoneCoreVTable lin_vtable; // Linphone callback methods table
     pthread_mutex_t mutex; // Mutex for serializing core calls
+    bool no_locks_now;
     ortp_thread_t iterate_thread; // Iterate thread
     
     std::string _logging;

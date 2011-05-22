@@ -19,7 +19,9 @@
 #define rmethod2(name, func) registerMethod(#name, make_method(this, &linphoneAPI::call_##func))
 #define rproperty(name) registerProperty(#name, make_property(this, &linphoneAPI::get_##name, &linphoneAPI::set_##name))
 #define rpropertyg(name) registerProperty(#name, make_property(this, &linphoneAPI::get_##name))
-
+#define CheckLin if(!lin) throw FB::script_error("Linphone has not been initialized yet");
+#define Lo(text) Lock lck(&mutex, text);
+#define CheckAndLock(text) CheckLin; Lo(text)
 
 // Original callbacks from linphone core
 #define GLC if(!linphone_core_get_user_data(lc)) printf("not found linphone api\n"); else ((linphoneAPI*) linphone_core_get_user_data(lc))
@@ -92,8 +94,16 @@ linphoneAPI::linphoneAPI(const linphonePtr& plugin, const FB::BrowserHostPtr& ho
   iterate_thread_running = false;
   
   // Load plugin params
-  boost::optional<std::string> x;
-  if(x = plugin->getParam("autoAccept")) _autoAccept = *x == "1";
+  boost::optional<std::string> par;
+  if(par = plugin->getParam("autoAccept")) _autoAccept = *par == "1";  
+  
+  // Autostart
+  if((par = plugin->getParam("autoStart")) && *par == "1") {
+	  printf("Calling auto init\n");
+	  call_init();
+	  printf("Calling auto start\n");
+	  call_start();
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -132,7 +142,7 @@ linphonePtr linphoneAPI::getPlugin()
  * Initialize structures
  */
 bool linphoneAPI::call_init(void) {    
-    Lock lck(&mutex, NULL);
+    Lo("init");
     if(lin) return false; // Already initialized	
     
 	  
@@ -154,10 +164,18 @@ bool linphoneAPI::call_init(void) {
     }
     
     // Disable logs by default, can be enabled by enableLogs() method
-    linphone_core_disable_logs();
-    
+    linphone_core_disable_logs();    
+        
     // TODO: remove later
     linphone_core_set_sip_port(lin, 6060);
+    
+	// Configure it by parameters
+    boost::optional<std::string> par, par2;
+    if(par = getPlugin()->getParam("enableVideo")) linphone_core_enable_video(lin, *par == "1", *par == "1");
+    if(par = getPlugin()->getParam("enableVideoPreview")) linphone_core_enable_video_preview(lin, *par == "1");
+    if((par = getPlugin()->getParam("embedVideo")) && *par == "1") embedVideo();
+    if(par = getPlugin()->getParam("username")) addAuthInfo(*par, getPlugin()->getParam("realm").get_value_or(""), getPlugin()->getParam("password").get_value_or(""));
+    if(par = getPlugin()->getParam("server")) addProxy(*par, getPlugin()->getParam("username").get_value_or(""));
 	
     return true;
 }
@@ -168,7 +186,7 @@ bool linphoneAPI::call_init(void) {
  * Start main thread
  */
 bool linphoneAPI::call_start(void) {
-	if(!lin) return false;
+	CheckAndLock("start")
         
     // Initialize iterating thread
     iterate_thread_running = true;
@@ -198,7 +216,7 @@ bool linphoneAPI::call_quit(void) {
   if(!lin) return false;
   
   {
-    Lock lck(&mutex, "terminate call");
+    Lo("terminate call");
     
     // Terminate call
     linphone_core_terminate_call(lin, NULL);
@@ -238,6 +256,7 @@ void linphoneAPI::call_disableLogs(void) {
  * Enable logging to file (or to stdout when dash is passed)
  */
 void linphoneAPI::call_enableLogs(std::string file) {
+	CheckAndLock("enableLogs");
 	if(file == "-") {
 		linphone_core_enable_logs(stdout);
 		_logging = file;
@@ -259,14 +278,18 @@ std::string linphoneAPI::get_logging(void) {
 }
 
 void linphoneAPI::call_enableStun(std::string server) {
+	CheckAndLock("enableStun");
 	linphone_core_set_firewall_policy(lin, LinphonePolicyUseStun);
     linphone_core_set_stun_server(lin, server.c_str());
 }
 
 
 void linphoneAPI::call_embedVideo(void) {
-	if(!lin) return;
-	
+	CheckAndLock("embed");
+	return embedVideo();
+}
+
+void linphoneAPI::embedVideo(void) {
 	linphone_core_set_native_preview_window_id(lin, get_pluginWindowId());
 }
 
@@ -283,6 +306,10 @@ unsigned long linphoneAPI::get_pluginWindowId(void) {
  */
 void linphoneAPI::call_addAuthInfo(std::string username, std::string realm, std::string passwd) {
   Lock lck(&mutex, "add auth info");
+  return addAuthInfo(username, realm, passwd);
+}
+
+void linphoneAPI::addAuthInfo(std::string username, std::string realm, std::string passwd) {
   LinphoneAuthInfo *info;
   
   info = linphone_auth_info_new(username.c_str(), NULL, passwd.c_str(), NULL, realm.c_str());
@@ -295,7 +322,10 @@ void linphoneAPI::call_addAuthInfo(std::string username, std::string realm, std:
  */
 void linphoneAPI::call_addProxy(std::string proxy, std::string identity) {
     Lock lck(&mutex, "add proxy");
-    
+    return addProxy(proxy, identity);
+}
+
+void linphoneAPI::addProxy(std::string proxy, std::string identity) {
     LinphoneProxyConfig *cfg;
     cfg = linphone_proxy_config_new();
     
