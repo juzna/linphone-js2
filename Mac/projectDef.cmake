@@ -13,9 +13,20 @@ file (GLOB PLATFORM RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
     Mac/[^.]*.cmake
     )
 
+
+# linphone libraries
+SET(LIBS_PATH "/Users/system/Downloads/Linphone.app/Contents/Resources/lib/")
+SET(PLUGIN_INTERNAL_DEPS ${PLUGIN_INTERNAL_DEPS}
+	${LIBS_PATH}/liblinphone.4.dylib
+	${LIBS_PATH}/libmediastreamer.1.dylib
+	${LIBS_PATH}/libortp.8.dylib
+	${LIBS_PATH}/libspeex.1.dylib
+	${LIBS_PATH}/libosipparser2.4.dylib
+	${LIBS_PATH}/libosip2.4.dylib
+)
+
 # use this to add preprocessor definitions
 add_definitions(
-    
 )
 
 

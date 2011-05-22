@@ -15,6 +15,17 @@ file (GLOB PLATFORM RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
 
 SOURCE_GROUP(X11 FILES ${PLATFORM})
 
+# linphone libraries
+SET(PLUGIN_INTERNAL_DEPS ${PLUGIN_INTERNAL_DEPS}
+	${CORE_PATH}/coreapi/.libs/liblinphone.so
+	${CORE_PATH}/mediastreamer2/src/.libs/libmediastreamer.so
+	${CORE_PATH}/oRTP/src/.libs/libortp.so
+	-lspeex
+	-losipparser2
+	-losip2
+)
+
+
 # use this to add preprocessor definitions
 add_definitions(
 )

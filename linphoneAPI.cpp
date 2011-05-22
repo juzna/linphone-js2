@@ -174,7 +174,7 @@ bool linphoneAPI::call_init(void) {
     boost::optional<std::string> par, par2;
     if(par = getPlugin()->getParam("enableVideo")) linphone_core_enable_video(lin, *par == "1", *par == "1");
     if(par = getPlugin()->getParam("enableVideoPreview")) linphone_core_enable_video_preview(lin, *par == "1");
-    if((par = getPlugin()->getParam("embedVideo")) && *par == "1") embedVideo();
+    if((par = getPlugin()->getParam("embedVideo")) && *par == "1") { embedVideo(); embedVideoPreview(); }
     if(par = getPlugin()->getParam("username")) addAuthInfo(*par, getPlugin()->getParam("realm").get_value_or(""), getPlugin()->getParam("password").get_value_or(""));
     if(par = getPlugin()->getParam("server")) addProxy(*par, getPlugin()->getParam("username").get_value_or(""));
 	
