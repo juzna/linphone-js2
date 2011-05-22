@@ -141,6 +141,10 @@ unsigned long linphone::getNativeWindowId(void) {
 	FB::PluginWindowWin *win = (FB::PluginWindowWin *) GetWindow();
 	return win->getHWND();
 
+#elif FB_MAC
+	FB::PluginWindowMac *win = (FB::PluginWindowMac *) GetWindow();
+	return win->getWindowRef();
+
 #else
 	printf("getWindowId not supported, unknown platform\n");
 	return 0;

@@ -20,6 +20,8 @@
 #include "PluginWindowX11.h"
 #elif FB_WIN
 #include "PluginWindowWin.h"
+#elif FB_MAC
+#include "PluginWindowMac.h"
 #endif
 
 
