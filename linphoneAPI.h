@@ -19,7 +19,7 @@
 #ifndef H_linphoneAPI
 #define H_linphoneAPI
 
-#define Lo Lock lck(&mutex, NULL);
+#define Lo_ if(!lin) throw FB::script_error("Linphone has not been initialized yet"); Lock lck(&mutex, NULL);
 
 
 class linphoneAPI : public FB::JSAPIAuto
@@ -49,28 +49,20 @@ public:
 	bool get_registered(void);
 	FB::JSAPIPtr get_sample(void);
 	std::string get_logging(void);
-	bool get_inCall(void) { Lo; return linphone_core_in_call(lin); }
-	bool get_videoEnabled(void) { Lo; return linphone_core_video_enabled(lin); }
-	void set_videoEnabled(bool x) { Lo; linphone_core_enable_video(lin, x, x); }
-	bool get_videoPreviewEnabled(void) { Lo; return linphone_core_video_preview_enabled(lin); }
-	void set_videoPreviewEnabled(bool x) { Lo; linphone_core_enable_video_preview(lin, x); }
-	unsigned long get_videoNativeId(void) { Lo; return linphone_core_get_native_video_window_id(lin); }
-	void set_videoNativeId(unsigned long x) { Lo; linphone_core_set_native_video_window_id(lin, x); }
-	unsigned long get_videoPreviewNativeId(void) { Lo; return linphone_core_get_native_preview_window_id(lin); }
-	void set_videoPreviewNativeId(unsigned long x) { Lo; linphone_core_set_native_preview_window_id(lin, x); }	
+	bool get_inCall(void) { Lo_; return linphone_core_in_call(lin); }
+	bool get_videoEnabled(void) { Lo_; return linphone_core_video_enabled(lin); }
+	void set_videoEnabled(bool x) { Lo_; linphone_core_enable_video(lin, x, x); }
+	bool get_videoPreviewEnabled(void) { Lo_; return linphone_core_video_preview_enabled(lin); }
+	void set_videoPreviewEnabled(bool x) { Lo_; linphone_core_enable_video_preview(lin, x); }
+	unsigned long get_videoNativeId(void) { Lo_; return linphone_core_get_native_video_window_id(lin); }
+	void set_videoNativeId(unsigned long x) { Lo_; linphone_core_set_native_video_window_id(lin, x); }
+	unsigned long get_videoPreviewNativeId(void) { Lo_; return linphone_core_get_native_preview_window_id(lin); }
+	void set_videoPreviewNativeId(unsigned long x) { Lo_; linphone_core_set_native_preview_window_id(lin, x); }	
 	boost::optional<FB::JSAPIPtr> get_actualCall(void);
 	bool get_autoAccept(void) { return _autoAccept; }
 	void set_autoAccept(bool x) { _autoAccept = x; }
 	
-	
-	
-	std::string get_videoFilterName(void) {
-		Lo;
-		if (lin->previewstream) {
-			return lin->previewstream->display_name;
-		}
-	}
-
+	std::string get_videoFilterName(void);
 	unsigned long get_pluginWindowId(void);
 
 	

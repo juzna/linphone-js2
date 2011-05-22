@@ -301,6 +301,13 @@ unsigned long linphoneAPI::get_pluginWindowId(void) {
 	return getPlugin()->getNativeWindowId();
 }	
 
+std::string linphoneAPI::get_videoFilterName(void) {
+	CheckAndLock(NULL);
+	if (lin->previewstream) {
+		return lin->previewstream->display_name;
+	}
+}
+
 
 /**
  * Add authentication info
