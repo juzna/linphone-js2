@@ -97,7 +97,7 @@ linphoneAPI::linphoneAPI(const linphonePtr& plugin, const FB::BrowserHostPtr& ho
   boost::optional<std::string> par;
   if(par = plugin->getParam("autoAccept")) _autoAccept = *par == "1";  
   
-  // Autostart
+  // Autostart (not working now)
   if((par = plugin->getParam("autoStart")) && *par == "1") {
 	  printf("Calling auto init\n");
 	  call_init();
