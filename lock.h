@@ -8,12 +8,12 @@
 /* Lock class */
 class Lock {
 public:
-  Lock(pthread_mutex_t *plock, char *from);
+  Lock(pthread_mutex_t *plock, const char *from);
   virtual ~Lock();
 
 private:
   pthread_mutex_t* _lock;
-  char *_from;
+  const char *_from;
 };
 
 

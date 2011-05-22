@@ -17,6 +17,7 @@
 #include <sstream>
 #include <string>
 #include <cstdio>
+#include <stdio.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 /// @fn linphone::StaticInitialize()
@@ -29,6 +30,8 @@ void linphone::StaticInitialize()
 {
     // Place one-time initialization stuff here; As of FireBreath 1.4 this should only
     // be called once per process
+    
+    printf("static init\n");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -42,6 +45,7 @@ void linphone::StaticDeinitialize()
 {
     // Place one-time deinitialization stuff here. As of FireBreath 1.4 this should
     // always be called just before the plugin library is unloaded
+    printf("static de-init\n");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -126,7 +130,7 @@ bool linphone::onWindowAttached(FB::AttachedEvent *evt, FB::PluginWindow *win)
 	// Assume it's X11 win (we can do it now) TODO: change this!
 	FB::PluginWindowX11 *win2 = (FB::PluginWindowX11*) win;
 	Window w3 = win2->getWindow();
-	printf("Window ID is %lu\n", w3);
+	printf("Window ID is %p\n", w3);
 	
     return false;
 }

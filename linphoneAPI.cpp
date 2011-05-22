@@ -216,10 +216,12 @@ bool linphoneAPI::call_quit(void) {
   if(!lin) return false;
   
   {
-    Lo("terminate call");
+    Lo("terminate last call if necessary");
     
     // Terminate call
-    linphone_core_terminate_call(lin, NULL);
+    if(linphone_core_in_call(lin)) {
+		linphone_core_terminate_call(lin, NULL);
+	}
   }
   
   // Stop iterating
@@ -248,6 +250,7 @@ bool linphoneAPI::get_running(void) {
  * Disable logging
  */
 void linphoneAPI::call_disableLogs(void) {
+	CheckAndLock(NULL);
 	linphone_core_disable_logs();
 	_logging = "";
 }
@@ -305,7 +308,7 @@ unsigned long linphoneAPI::get_pluginWindowId(void) {
  * Add authentication info
  */
 void linphoneAPI::call_addAuthInfo(std::string username, std::string realm, std::string passwd) {
-  Lock lck(&mutex, "add auth info");
+  CheckAndLock("add auth info");
   return addAuthInfo(username, realm, passwd);
 }
 
@@ -321,7 +324,7 @@ void linphoneAPI::addAuthInfo(std::string username, std::string realm, std::stri
  * Add proxy server
  */
 void linphoneAPI::call_addProxy(std::string proxy, std::string identity) {
-    Lock lck(&mutex, "add proxy");
+    CheckAndLock("add proxy");
     return addProxy(proxy, identity);
 }
 
@@ -344,7 +347,7 @@ void linphoneAPI::addProxy(std::string proxy, std::string identity) {
  * Accept incoming call
  */
 bool linphoneAPI::call_accept(void) {
-  Lock lck(&mutex, "accept");
+  CheckAndLock("accept");
   return linphone_core_accept_call(lin, NULL) != -1;
 }
 
@@ -352,7 +355,7 @@ bool linphoneAPI::call_accept(void) {
  * Terminate actual call
  */
 bool linphoneAPI::call_terminate(void) {
-  Lock lck(&mutex, "terminate");
+  CheckAndLock("terminate");
   return linphone_core_terminate_call(lin, NULL) != -1;
 }
 
@@ -360,8 +363,7 @@ bool linphoneAPI::call_terminate(void) {
  * Check whether we're registered to proxy
  */
 bool linphoneAPI::get_registered(void) {
-  Lock lck(&mutex, "get-registered");
-  if(!lin) return false;
+  CheckAndLock("get-registered");
   
   LinphoneProxyConfig *cfg;
   int ret;
@@ -373,7 +375,7 @@ bool linphoneAPI::get_registered(void) {
   }
   ret = linphone_proxy_config_is_registered(cfg);
   
-  printf("get registered: got cfg %u; %d\n", (void *) cfg, ret);
+  printf("get registered: got cfg %p; %d\n", cfg, ret);
 
   if(cfg) return ret > 0;
   else return false;
@@ -392,7 +394,7 @@ FB::JSAPIPtr linphoneAPI::_add_call(LinphoneCall *call) {
 	}
 	
 	index = ++_call_list_counter;
-	printf("Creating new call under index %u\n", index);
+	printf("Creating new call under index %lu\n", index);
 
 	CallAPIPtr cptr = boost::make_shared<CallAPI>(m_host, &mutex, &lin, call);  
 	
@@ -412,7 +414,7 @@ FB::JSAPIPtr linphoneAPI::_add_call(LinphoneCall *call) {
  * Initialize new call
  */
 FB::JSAPIPtr linphoneAPI::call_call(std::string uri) {
-  Lock lck(&mutex, "call");
+  CheckAndLock("call");
   LinphoneCall *call = linphone_core_invite(lin, uri.c_str());
     
   if(!call) {
@@ -421,7 +423,7 @@ FB::JSAPIPtr linphoneAPI::call_call(std::string uri) {
     //return (FB::JSAPIPtr) NULL; //boost::make_shared<CallAPI>(m_host, &_lin, call); // NULL;
   }
   else {
-	printf("Call initialized, storing to map %lu\n", linphone_call_get_user_pointer(call));
+	printf("Call initialized, storing to map %p\n", linphone_call_get_user_pointer(call));
 	return _add_call(call);//boost::make_shared<CallAPI>(m_host, &mutex, &lin, call);  
   }
 }
@@ -451,17 +453,17 @@ void linphoneAPI::lcb_call_state_changed(LinphoneCall *call, LinphoneCallState c
 			cptr = _call_list[index];
 		}
 		else {
-			printf("CallAPI %d not found in registry\n", index);
+			printf("CallAPI %lu not found in registry\n", index);
 			return;
 		}
 	}
 	else {
-		printf("Call %lu has no stored index to CallAPI saving\n", call);
+		printf("Call %p has no stored index to CallAPI saving\n", call);
 		cptr = _add_call(call);
 	}
 	
 	// Fire event
-	printf("Call %d state changed to %d - %s\n", index, cstate, message);
+	printf("Call %lu state changed to %d - %s\n", index, cstate, message);
 	fire_callStateChanged(cptr, cstate, message);
 	
 	

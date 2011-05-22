@@ -17,7 +17,7 @@
 CallAPI::CallAPI(const FB::BrowserHostPtr& host, pthread_mutex_t *mutex, LinphoneCore **lin, LinphoneCall *call)
  : m_host(host), _mutex(mutex), _lin(lin), _call(call), _remote()
 {
-  printf("CallAPI instance: %u\n", (void *) call);
+  printf("CallAPI instance: %p\n", call);
   linphone_call_ref(call);
   
   // Register exported methods
@@ -81,7 +81,7 @@ FB::JSAPIPtr CallAPI::get_remote(void) {
 	if(!_remote.use_count()) {
 		const LinphoneAddress* addr = linphone_call_get_remote_address(_call);
 		addr = linphone_address_clone(addr);
-		printf("Got original addr pointer: %u\n", (void*) addr);
+		printf("Got original addr pointer: %p\n", addr);
 		_remote = boost::make_shared<AddressAPI>(m_host, _mutex, (LinphoneAddress*) addr, true);
 		printf("Got object addr pointer\n");
 	}

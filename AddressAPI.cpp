@@ -18,7 +18,7 @@
 AddressAPI::AddressAPI(const FB::BrowserHostPtr& host, pthread_mutex_t *mutex, LinphoneAddress *address, bool isOwner)
  : m_host(host), _mutex(mutex), _address(address), _isOwner(isOwner)
 {
-  printf("AddressAPI instance: %u\n", (void *) address);
+  printf("AddressAPI instance: %p\n", address);
   
   // Register exported methods
   rmethod(toString);

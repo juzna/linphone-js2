@@ -3,7 +3,7 @@
 #include "lock.h"
 
 // Initialize a lock
-Lock::Lock(pthread_mutex_t *plock, char *from) {
+Lock::Lock(pthread_mutex_t *plock, const char *from) {
 	if(from) {
 	  printf("locking mutex: ");
 	}
