@@ -1,0 +1,21 @@
+Program received signal SIGSEGV, Segmentation fault.
+0x00007ffff1b78f53 in _IO_fflush (fp=0x7fffce277800) at iofflush.c:42
+42	iofflush.c: No such file or directory.
+	in iofflush.c
+(gdb) bt
+#0  0x00007ffff1b78f53 in _IO_fflush (fp=0x7fffce277800) at iofflush.c:42
+#1  0x00007fffd2dec1b0 in __ortp_logv_out (lev=ORTP_MESSAGE, fmt=0x7fffce2b07f0 "authinfo: No authentication found for %s %s", args=0x7fffffffade0) at ortp.c:264
+#2  0x00007fffd3273718 in _osip_trace_func (fi=0x7fffd256eadc "eXosip.c", li=1363, level=TRACE_LEVEL5, chfr=0x7fffd256ebd0 "authinfo: No authentication found for %s %s\n", ap=0x7fffffffade0)
+    at sal_eXosip2.c:259
+#3  0x00007fffd29b20ae in osip_trace () from /usr/lib/libosipparser2.so.4
+#4  0x00007fffd254fbc8 in eXosip_add_authentication_information () from /usr/lib/libeXosip2.so.4
+#5  0x00007fffd2553c30 in ?? () from /usr/lib/libeXosip2.so.4
+#6  0x00007fffd2553f65 in eXosip_register_build_register () from /usr/lib/libeXosip2.so.4
+#7  0x00007fffd32787b6 in sal_unregister (h=0x7fffce2ed3d0) at sal_eXosip2.c:1933
+#8  0x00007fffd3282121 in linphone_proxy_config_edit (obj=0x7fffce3feca0) at proxy.c:231
+#9  0x00007fffd326ff16 in sip_config_uninit (lc=0x7fffce276000) at linphonecore.c:3745
+#10 0x00007fffd3270861 in linphone_core_uninit (lc=0x7fffce276000) at linphonecore.c:3907
+#11 0x00007fffd3270af6 in linphone_core_destroy (lc=0x7fffce276000) at linphonecore.c:3975
+#12 0x00007fffd34e0560 in linphoneAPI::call_quit() () from /home/juzna/projects/firebreath-dev/build/bin/linphone/nplinphone.so
+#13 0x00007fffd34ef2fc in FB::detail::methods::method_wrapper0<linphoneAPI, bool, bool (linphoneAPI::*)()>::operator()(linphoneAPI*, std::vector<FB::variant, std::allocator<FB::variant> > const&) ()
+   from /home/juzna/projects/firebreath-dev/build/bin/linphone/nplinphone.so

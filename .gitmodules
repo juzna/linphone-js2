@@ -1,0 +1,7 @@
+[submodule "firebreath"]
+	path = 3rdParty/firebreath
+	url = git://github.com/firebreath/FireBreath.git
+
+[submodule "linphone-core"]
+	path = 3rdParty/linphone
+	url = git://git.sv.gnu.org/linphone.git
