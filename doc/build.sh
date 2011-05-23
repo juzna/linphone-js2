@@ -22,7 +22,7 @@ export CFLAGS='-ggdb3 -fPIC'
 cd 3rdParty/linphone
 ./autogen.sh
 ./configure --enable-gtk_ui=no && make  || exit 1
-#sudo make install || exit 1  #optional
+#sudo make install || exit 1  # optional, probably not needed anymore
 cd ../..
 
 # prepare firebreath build
