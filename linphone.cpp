@@ -125,7 +125,11 @@ bool linphone::onWindowAttached(FB::AttachedEvent *evt, FB::PluginWindow *win)
 {
     // The window is attached; act appropriately
 	printf("Window attached\n");
-	std::cout << typeid(*evt).name() << ", " << typeid(*win).name() << std::endl;	
+	std::cout << typeid(*evt).name() << ", " << typeid(*win).name() << std::endl;
+
+        // TODO: find out how to cast to linphoneAPIPtr
+        //linphoneAPIPtr api = dynamic_cast<linphoneAPIPtr>(getRootJSAPI());
+        //api->_fire_windowAttached(getNativeWindowId());
     return false;
 }
 

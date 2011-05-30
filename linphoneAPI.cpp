@@ -51,7 +51,8 @@ static void cb_auth_info_requested(LinphoneCore *lc, const char *realm, const ch
 ///////////////////////////////////////////////////////////////////////////////
 linphoneAPI::linphoneAPI(const linphonePtr& plugin, const FB::BrowserHostPtr& host)
   : m_plugin(plugin), m_host(host), _sample(),
-    _call_list(), _call_list_counter(0)
+    _call_list(), _call_list_counter(0),
+    _logging_fp(), _isQuitting(false)
 {
   printf("creating new plugin instance\n");
   
@@ -83,6 +84,7 @@ linphoneAPI::linphoneAPI(const linphonePtr& plugin, const FB::BrowserHostPtr& ho
   rpropertyg(videoFilterName);
   rpropertyg(pluginWindowId);
   rpropertyg(actualCall);
+  rpropertyg(videoSize);
   rproperty(autoAccept);
   
   
@@ -96,15 +98,7 @@ linphoneAPI::linphoneAPI(const linphonePtr& plugin, const FB::BrowserHostPtr& ho
   
   // Load plugin params
   boost::optional<std::string> par;
-  if(par = plugin->getParam("autoAccept")) _autoAccept = *par == "1";  
-  
-  // Autostart (not working now)
-  if((par = plugin->getParam("autoStart")) && *par == "1") {
-	  printf("Calling auto init\n");
-	  call_init();
-	  printf("Calling auto start\n");
-	  call_start();
-  }
+  if(par = plugin->getParam("autoAccept")) _autoAccept = *par == "1";    
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -154,8 +148,8 @@ bool linphoneAPI::call_init(void) {
     lin_vtable.registration_state_changed = cb_registration_state_changed;
     lin_vtable.auth_info_requested = cb_auth_info_requested;
     
-    char configfile_name[PATH_MAX];
-    snprintf(configfile_name, PATH_MAX, "%s/.linphonerc", getenv("HOME"));
+    //char configfile_name[PATH_MAX];
+    //snprintf(configfile_name, PATH_MAX, "%s/.linphonerc", getenv("HOME"));
     
     // Create linphone core
     lin = linphone_core_new(&lin_vtable, NULL, NULL, (void *) this);
@@ -172,12 +166,21 @@ bool linphoneAPI::call_init(void) {
     
 	// Configure it by parameters
     boost::optional<std::string> par, par2;
-    if(par = getPlugin()->getParam("enableVideo")) linphone_core_enable_video(lin, *par == "1", *par == "1");
-    if(par = getPlugin()->getParam("enableVideoPreview")) linphone_core_enable_video_preview(lin, *par == "1");
-    if((par = getPlugin()->getParam("embedVideo")) && *par == "1") { embedVideo(); embedVideoPreview(); }
-    if(par = getPlugin()->getParam("username")) addAuthInfo(*par, getPlugin()->getParam("realm").get_value_or(""), getPlugin()->getParam("password").get_value_or(""));
-    if(par = getPlugin()->getParam("server")) addProxy(*par, getPlugin()->getParam("username").get_value_or(""));
-	
+    linphonePtr plugin = getPlugin();
+
+    if(par = plugin->getParam("enableVideo")) linphone_core_enable_video(lin, *par == "1", *par == "1");
+    if(par = plugin->getParam("enableVideoPreview")) linphone_core_enable_video_preview(lin, *par == "1");
+    if((par = plugin->getParam("embedVideo")) && *par == "1") { embedVideo(); embedVideoPreview(); }
+    if(par = plugin->getParam("username")) addAuthInfo(*par, plugin->getParam("realm").get_value_or(""), plugin->getParam("password").get_value_or(""));
+    if(par = plugin->getParam("server")) addProxy(*par, plugin->getParam("username").get_value_or(""));
+
+
+    // Autostart
+    if((par = plugin->getParam("autoStart")) && *par == "1") {
+            printf("Calling auto start\n");
+            call_start();
+    }
+
     return true;
 }
 
@@ -215,6 +218,7 @@ static void *iterate_thread_main(void*p){
  */
 bool linphoneAPI::call_quit(void) {
   if(!lin) return false;
+  _isQuitting = true;
   
   {
     Lo("terminate last call if necessary");
@@ -456,10 +460,12 @@ FB::JSAPIPtr linphoneAPI::get_sample(void) {
 
 // Events
 void linphoneAPI::lcb_global_state_changed(LinphoneGlobalState gstate, const char *msg) {
+    if(_isQuitting) return;
 	fire_globalStateChanged(gstate, msg);
 }
 
 void linphoneAPI::lcb_call_state_changed(LinphoneCall *call, LinphoneCallState cstate, const char *message) {
+    if(_isQuitting) return;
 	unsigned long index = (unsigned long) linphone_call_get_user_pointer(call);
 	FB::JSAPIPtr cptr;
 	
@@ -491,14 +497,36 @@ void linphoneAPI::lcb_call_state_changed(LinphoneCall *call, LinphoneCallState c
 }
 
 void linphoneAPI::lcb_registration_state_changed(LinphoneProxyConfig *cfg, LinphoneRegistrationState cstate, const char *message) {
+    if(_isQuitting) return;
 	// TODO: find proxy object and fire event with it
 	fire_registrationStateChanged(cstate, message);
 }
 
 void linphoneAPI::lcb_auth_info_requested(const char *realm, const char *username) {
+    if(_isQuitting) return;
 	fire_authInfoRequested(realm, username);
 }
 
 boost::optional<FB::JSAPIPtr> linphoneAPI::get_actualCall(void) {
 	return boost::optional<FB::JSAPIPtr>();
+}
+
+FB::VariantMap linphoneAPI::get_videoSize(void) {
+    CheckAndLock("get-size");
+    
+    FB::VariantMap ret;
+    MSVideoSize size = linphone_core_get_preferred_video_size(lin);
+
+//    return FB::variant_map_of
+ //           ("width", size.width)
+ //           ("height", size.height);
+
+/*    if(size) {
+        throw new FB::Error("Unable to get size");
+    }
+    else { */
+        ret["width"] = size.width;
+        ret["height"] = size.height;
+        return ret;
+    //}
 }

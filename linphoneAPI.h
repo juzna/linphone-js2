@@ -62,6 +62,7 @@ public:
 	boost::optional<FB::JSAPIPtr> get_actualCall(void);
 	bool get_autoAccept(void) { return _autoAccept; }
 	void set_autoAccept(bool x) { _autoAccept = x; }
+        FB::VariantMap get_videoSize(void);
 	
 	std::string get_videoFilterName(void);
 	unsigned long get_pluginWindowId(void);
@@ -75,10 +76,11 @@ public:
 	
 	
 	// Event helpers
-	FB_JSAPI_EVENT(globalStateChanged, 2, (const int, const std::string)) // int state, string msg
-	FB_JSAPI_EVENT(callStateChanged, 3, (FB::JSAPIPtr, const int, const std::string)) // CallAPI call, int state, string msg
-	FB_JSAPI_EVENT(registrationStateChanged, 2, (const int, const std::string)) // (ProxyAPI call,) int state, string msg
+	FB_JSAPI_EVENT(globalStateChanged, 2, (const int, const std::string)); // int state, string msg
+	FB_JSAPI_EVENT(callStateChanged, 3, (FB::JSAPIPtr, const int, const std::string)); // CallAPI call, int state, string msg
+	FB_JSAPI_EVENT(registrationStateChanged, 2, (const int, const std::string)); // (ProxyAPI call,) int state, string msg
 	FB_JSAPI_EVENT(authInfoRequested, 2, (std::string, std::string)); // string realm, string username
+        FB_JSAPI_EVENT(windowAttached, 1, (unsigned long)); // id
 	
 	
 
@@ -95,6 +97,7 @@ public:
     void addProxy(std::string proxy, std::string identity);
     void embedVideo(void);
     void embedVideoPreview(void);
+    void _fire_windowAttached(unsigned long id) { fire_windowAttached(id); } // just call protected method
 	
 
 private:
@@ -113,6 +116,7 @@ private:
     std::map<unsigned long, CallAPIPtr > _call_list; // We handle referenced calls here
     unsigned long _call_list_counter;
     bool _autoAccept;
+    bool _isQuitting;
     
 public:
 	bool iterate_thread_running; // Indicate, when should iterate thread stop

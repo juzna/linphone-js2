@@ -1,5 +1,5 @@
 <html><body>
-<object id="testPlugin" type="application/x-linphone" width="200" height="200" onload="alert('The plugin has loaded!');">
+<object id="testPlugin" type="application/x-linphone" width="1" height="1" onload="alert('The plugin has loaded!');">
   <param name="onload" value="pluginCB" />
   
   <param name="enableVideo" value="1" />
@@ -40,18 +40,22 @@ el.addEventListener('authInfoRequested', function(user, realm) {
 
 function completeStart() {
 	console.log('Init:', el.init());
-	
+
+    // Window size
+//    el.width = el.videoSize.width;
+//    el.height = el.videoSize.height;
+
 	// Setup
 	el.enableLogs("/tmp/linphone-js.log");
 	el.enableStun("stun.helemik.cz");
-	
+
+    // Start it
 	console.log('Start:', el.start());
-	console.log('Proxy:', el.addProxy('sip:sip.helemik.cz', 'sip:571891103@sip.helemik.cz'));
-	console.log('Auth:', el.addAuthInfo("571891103", "\"ipbx\"", "dummypass1A"));
 }
 
 </script>
 
+<!--
 <input type="button" onclick="alert(el.running);" value="Running?" />
 <input type="button" onclick="alert(el.init());" value="Init" />
 <input type="button" onclick="alert(el.start());" value="Start" />
@@ -61,6 +65,7 @@ function completeStart() {
 <input type="button" onclick='el.addAuthInfo("571891103", "\"ipbx\"", "dummypass1A")' value="Set auth info" />
 <input type="button" onclick="el.addProxy('sip:sip.helemik.cz', 'sip:571891103@sip.helemik.cz')" value="Add proxy" />
 <input type="button" onclick="alert(el.registered);" value="Registered?" />
+-->
 <input type="button" onclick="completeStart();" value="Start" />
 <br />
 
