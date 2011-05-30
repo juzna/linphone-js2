@@ -5,7 +5,7 @@
 #
 #\**********************************************************/
 
-set(PLUGIN_NAME "linphone")
+set(PLUGIN_NAME "linphone-js")
 set(PLUGIN_PREFIX "LIN")
 set(COMPANY_NAME "juznacz")
 
