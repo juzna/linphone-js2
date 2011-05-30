@@ -6,7 +6,7 @@ sudo apt-get install g++ cmake make autoconf gcc git-core wget autoconf libtool 
 
 # install dependencies for linphone core
 sudo apt-get install libspeex-dev libspeexdsp-dev libxml2-dev libosip2-dev libexosip2-dev \
-	libavcodec-dev libswscale-dev libsdl-dev libgtk2-dev libx11-dev libxv-dev libx4l-dev
+	libavcodec-dev libswscale-dev libsdl-dev libgtk2-dev libx11-dev libxv-dev libv4l-dev
 
 # prepare dependencies
 #sudo apt-get build-dep liblinphone2 || sudo apt-get build-dep liblinphone3
