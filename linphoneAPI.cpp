@@ -228,6 +228,9 @@ bool linphoneAPI::call_quit(void) {
 		linphone_core_terminate_call(lin, NULL);
 	}
   }
+
+  linphone_core_disable_logs(); // Disable further logs
+  _logging_fp = NULL;
   
   // Stop iterating
   printf("joining iterate thread\n");

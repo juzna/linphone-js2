@@ -38,12 +38,16 @@ el.addEventListener('authInfoRequested', function(user, realm) {
 	console.log('Auth info requested for', user, realm);
 });
 
+el.addEventListener('windowAttached', function(id) {
+  console.log("Attached window:", id);
+});
+
 function completeStart() {
 	console.log('Init:', el.init());
 
     // Window size
-//    el.width = el.videoSize.width;
-//    el.height = el.videoSize.height;
+    el.width = el.videoSize.width;
+    el.height = el.videoSize.height;
 
 	// Setup
 	el.enableLogs("/tmp/linphone-js.log");
@@ -67,6 +71,7 @@ function completeStart() {
 <input type="button" onclick="alert(el.registered);" value="Registered?" />
 -->
 <input type="button" onclick="completeStart();" value="Start" />
+<input type="button" onclick="alert(el.quit());" value="Quit" />
 <br />
 
 <input type="button" onclick="el.accept()" value="Accept call" />

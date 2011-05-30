@@ -128,8 +128,8 @@ bool linphone::onWindowAttached(FB::AttachedEvent *evt, FB::PluginWindow *win)
 	std::cout << typeid(*evt).name() << ", " << typeid(*win).name() << std::endl;
 
         // TODO: find out how to cast to linphoneAPIPtr
-        //linphoneAPIPtr api = dynamic_cast<linphoneAPIPtr>(getRootJSAPI());
-        //api->_fire_windowAttached(getNativeWindowId());
+        linphoneAPIPtr api(FB::ptr_cast<linphoneAPI>(getRootJSAPI()));
+        api->_fire_windowAttached(getNativeWindowId());
     return false;
 }
 
@@ -139,7 +139,7 @@ bool linphone::onWindowAttached(FB::AttachedEvent *evt, FB::PluginWindow *win)
 unsigned long linphone::getNativeWindowId(void) {
 #if FB_X11
 	FB::PluginWindowX11 *win = (FB::PluginWindowX11 *) GetWindow();
-	return win->getWindow();
+	return win ? win->getWindow() : NULL;
 	
 #elif FB_WIN
 	FB::PluginWindowWin *win = (FB::PluginWindowWin *) GetWindow();
@@ -160,7 +160,12 @@ bool linphone::onWindowDetached(FB::DetachedEvent *evt, FB::PluginWindow *)
 {
     // The window is about to be detached; act appropriately
 	printf("Window detached\n");
-    return false;
+
+        linphoneAPIPtr api(FB::ptr_cast<linphoneAPI>(getRootJSAPI()));
+        api->_windiw_detached(getNativeWindowId());
+
+
+        return false;
 }
 
 bool linphone::draw(FB::RefreshEvent *evt, FB::PluginWindow*) {

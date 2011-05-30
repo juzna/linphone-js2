@@ -98,6 +98,13 @@ public:
     void embedVideo(void);
     void embedVideoPreview(void);
     void _fire_windowAttached(unsigned long id) { fire_windowAttached(id); } // just call protected method
+    void _windiw_detached(unsigned long id) {
+        // Disable video when window get's detached
+        if(!lin) return;
+        Lo_;
+        linphone_core_enable_video(lin, 0, 0);
+        linphone_core_enable_video_preview(lin, 0);
+    }
 	
 
 private:
