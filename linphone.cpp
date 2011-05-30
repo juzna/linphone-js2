@@ -8,6 +8,7 @@
 \**********************************************************/
 
 #include "linphoneAPI.h"
+#include "VideoWindowAPI.h"
 
 #include "linphone.h"
 
@@ -101,8 +102,24 @@ void linphone::shutdown()
 FB::JSAPIPtr linphone::createJSAPI()
 {
     // m_host is the BrowserHost
-    return boost::make_shared<linphoneAPI>(FB::ptr_cast<linphone>(shared_from_this()), m_host);
+    boost::optional<std::string> param;
+    std::string type("main");
+    if(param = this->getParam("pluginType")) type = *param;
+
+    std::cout << "Type: " << type << std::endl;
+
+
+    if(type == "main") {
+        isMain = true; isVideo = false;
+        return boost::make_shared<linphoneAPI>(FB::ptr_cast<linphone>(shared_from_this()), m_host);
+    }
+    else if(type == "video") {
+        isMain = false; isVideo = true;
+        return boost::make_shared<VideoWindowAPI>(FB::ptr_cast<linphone>(shared_from_this()), m_host);
+    }
+    else throw FB::script_error("Wrong type");
 }
+
 
 bool linphone::onMouseDown(FB::MouseDownEvent *evt, FB::PluginWindow *)
 {
@@ -124,12 +141,18 @@ bool linphone::onMouseMove(FB::MouseMoveEvent *evt, FB::PluginWindow *)
 bool linphone::onWindowAttached(FB::AttachedEvent *evt, FB::PluginWindow *win)
 {
     // The window is attached; act appropriately
-	printf("Window attached\n");
-	std::cout << typeid(*evt).name() << ", " << typeid(*win).name() << std::endl;
+    printf("Window attached\n");
+    std::cout << typeid(*evt).name() << ", " << typeid(*win).name() << std::endl;
 
+    if(isMain) {
         // TODO: find out how to cast to linphoneAPIPtr
         linphoneAPIPtr api(FB::ptr_cast<linphoneAPI>(getRootJSAPI()));
         api->_fire_windowAttached(getNativeWindowId());
+    }
+    else if(isVideo) {
+
+    }
+
     return false;
 }
 
@@ -159,15 +182,19 @@ unsigned long linphone::getNativeWindowId(void) {
 bool linphone::onWindowDetached(FB::DetachedEvent *evt, FB::PluginWindow *)
 {
     // The window is about to be detached; act appropriately
-	printf("Window detached\n");
+    printf("Window detached\n");
 
+    if(isMain) {
         linphoneAPIPtr api(FB::ptr_cast<linphoneAPI>(getRootJSAPI()));
         api->_windiw_detached(getNativeWindowId());
+    }
+    else if(isVideo) {
 
+    }
 
-        return false;
+    return false;
 }
 
 bool linphone::draw(FB::RefreshEvent *evt, FB::PluginWindow*) {
-	printf("Draw please\n");
+    printf("Draw please\n");
 }

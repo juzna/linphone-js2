@@ -65,6 +65,10 @@ public:
     virtual bool onWindowDetached(FB::DetachedEvent *evt, FB::PluginWindow *);
     virtual bool draw(FB::RefreshEvent *evt, FB::PluginWindow*);
     /** END EVENTDEF -- DON'T CHANGE THIS LINE **/
+
+private:
+    bool isMain;
+    bool isVideo;
 };
 
 

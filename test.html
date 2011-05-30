@@ -15,11 +15,15 @@
 </object>
 <hr style="visibility: hidden;" />
 
+<object id="testVideo" type="application/x-linphone" width="1" height="1">
+  <param name="pluginType" value="video" />
+</object>
+
 <script language="javascript">
 var el, t1;
 
 el = window.el = document.getElementById('testPlugin');
-t1 = document.getElementById('test1');
+vid = window.vid = document.getElementById('testVideo');
 
 el.addEventListener('globalStateChanged', function(state, msg) {
 	console.log('Global state changed:', state, msg);
