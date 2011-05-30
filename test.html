@@ -1,4 +1,4 @@
-<html><body>
+<html><body onload="completeStart();">
 <object id="testPlugin" type="application/x-linphone" width="1" height="1" onload="alert('The plugin has loaded!');">
   <param name="onload" value="pluginCB" />
   
@@ -21,6 +21,9 @@
 
 <script language="javascript">
 var el, t1;
+
+if(!console) console = {};
+if(!console.log) console.log = function() {}
 
 el = window.el = document.getElementById('testPlugin');
 vid = window.vid = document.getElementById('testVideo');
@@ -61,6 +64,13 @@ function completeStart() {
 	console.log('Start:', el.start());
 }
 
+function quit() {
+  console.log("Quit:", el.quit());
+  el.width = 1;
+  el.height = 1;
+}
+
+
 </script>
 
 <!--
@@ -75,7 +85,7 @@ function completeStart() {
 <input type="button" onclick="alert(el.registered);" value="Registered?" />
 -->
 <input type="button" onclick="completeStart();" value="Start" />
-<input type="button" onclick="alert(el.quit());" value="Quit" />
+<input type="button" onclick="quit();" value="Quit" />
 <br />
 
 <input type="button" onclick="el.accept()" value="Accept call" />
