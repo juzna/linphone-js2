@@ -1,4 +1,4 @@
-<html><body onload="completeStart();">
+<html><body onload="lazyStart();">
 <object id="testPlugin" type="application/x-linphone" width="1" height="1" onload="alert('The plugin has loaded!');">
   <param name="onload" value="pluginCB" />
   
@@ -49,6 +49,11 @@ el.addEventListener('windowAttached', function(id) {
   console.log("Attached window:", id);
 });
 
+function lazyStart() {
+  // Because it crashes, when starting video before the window is displayed properly
+  window.setTimeout('completeStart()', 500);
+}
+
 function completeStart() {
 	console.log('Init:', el.init());
 
@@ -68,6 +73,12 @@ function quit() {
   console.log("Quit:", el.quit());
   el.width = 1;
   el.height = 1;
+}
+
+function startCall() {
+  var dst = document.getElementById('dst').value;
+  console.log("Calling ", dst);
+  console.log("Result: ", el.call(dst));
 }
 
 
@@ -92,10 +103,8 @@ function quit() {
 <input type="button" onclick="el.terminate()" value="Terminate call" />
 <br />
 
-
-<input type="button" onclick="console.log(c = el.call('571891104'))" value="Call 1" />
-<input type="button" onclick="console.log(c = el.call('sip:571891104'))" value="Call 2" />
-<input type="button" onclick="console.log(c = el.call('sip:571891104@ipbx'))" value="Call" />
-<input type="button" onclick="console.log(c = el.call('sip:571891104@sip.helemik.cz'))" value="Call" />
-<input type="button" onclick="console.log(c = el.call('sip:571891104@vh027.ipex.cz'))" value="Call" />
-<br />
+<div>
+  Call:
+  <input type="text" id="dst" value="571891104">
+  <input type="button" onclick="startCall()" value="Call" />
+</div>

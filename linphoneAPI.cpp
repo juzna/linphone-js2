@@ -436,18 +436,17 @@ FB::JSAPIPtr linphoneAPI::_add_call(LinphoneCall *call) {
  * Initialize new call
  */
 FB::JSAPIPtr linphoneAPI::call_call(std::string uri) {
-  CheckAndLock("call");
-  LinphoneCall *call = linphone_core_invite(lin, uri.c_str());
-    
-  if(!call) {
-	  printf("Unable to place call\n");
-	//  throw FB::script_error("Unable to place call");
-    //return (FB::JSAPIPtr) NULL; //boost::make_shared<CallAPI>(m_host, &_lin, call); // NULL;
-  }
-  else {
-	printf("Call initialized, storing to map %p\n", linphone_call_get_user_pointer(call));
-	return _add_call(call);//boost::make_shared<CallAPI>(m_host, &mutex, &lin, call);  
-  }
+    CheckAndLock("call");
+    LinphoneCall *call = linphone_core_invite(lin, uri.c_str());
+
+    if(!call) {
+        printf("Unable to place call\n");
+        throw FB::script_error("Unable to place call");
+    }
+    else {
+        printf("Call initialized, storing to map %p\n", linphone_call_get_user_pointer(call));
+        return _add_call(call);//boost::make_shared<CallAPI>(m_host, &mutex, &lin, call);
+    }
 }
 
 FB::JSAPIPtr linphoneAPI::get_sample(void) {
