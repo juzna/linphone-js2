@@ -45,9 +45,9 @@ SET( SOURCES
     )
 
 #SET(CPACK_GENERATOR "STGZ;TGZ;TZ;ZIP")
-SET(CPACK_GENERATOR "ZIP")
-SET(CPACK_PACKAGE_NAME "linphone-js")
-SET(CPACK_PACKAGE_FILE_NAME "linphone-js")
+#SET(CPACK_GENERATOR "ZIP")
+#SET(CPACK_PACKAGE_NAME "linphone-js")
+#SET(CPACK_PACKAGE_FILE_NAME "linphone-js")
 
 # This will include Win/projectDef.cmake, X11/projectDef.cmake, Mac/projectDef 
 # depending on the platform
