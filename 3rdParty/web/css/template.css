@@ -1,0 +1,16 @@
+.btn_blue, .btn_red, .btn_green {
+	cursor:pointer;
+	width: 492px;
+	height: 184px;
+	border: none;
+	font-weight:bold;
+	font-size:1cm;
+	white-space:nowrap;
+}
+.btn_blue{ background:url(../images/btn_blue.png) no-repeat; }
+.btn_red{ background:url(../images/btn_red.png) no-repeat; }
+.btn_green{ background:url(../images/btn_green.png) no-repeat; }
+
+
+#slider1 .ui-slider-range { background: #ef2929; }
+#slider1 .ui-slider-handle { border-color: #ef2929; width: 2.6em; }
