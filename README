@@ -1,3 +1,15 @@
 JavaScript binding to Linphone core API
 
 This projects provides linphone core API to JavaScript.
+
+
+
+Notes
+#######
+
+To make a .deb package, go to build/ dir and execute: fakeroot make package
+
+CMake 2.8.4 is needed, it's probably not in your distribution so go to CMake web page,
+download it from git and build it yourself. Otherwise, some featres may not work (especially Conflicts for deb package).
+
+
