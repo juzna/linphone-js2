@@ -44,7 +44,9 @@ public:
 	void call_enableStun(std::string);
 	void call_embedVideo(void);
 	void call_embedVideoPreview(void);
-	
+    void call_setResolution(int, int);
+    void call_setResolutionByName(std::string);
+
 	// Properties methods
 	bool get_running(void);
 	bool get_registered(void);
@@ -58,38 +60,41 @@ public:
 	unsigned long get_videoNativeId(void) { Lo_; return linphone_core_get_native_video_window_id(lin); }
 	void set_videoNativeId(unsigned long x) { Lo_; linphone_core_set_native_video_window_id(lin, x); }
 	unsigned long get_videoPreviewNativeId(void) { Lo_; return linphone_core_get_native_preview_window_id(lin); }
-	void set_videoPreviewNativeId(unsigned long x) { Lo_; linphone_core_set_native_preview_window_id(lin, x); }	
+	void set_videoPreviewNativeId(unsigned long x) { Lo_; linphone_core_set_native_preview_window_id(lin, x); }
 	boost::optional<FB::JSAPIPtr> get_actualCall(void);
 	bool get_autoAccept(void) { return _autoAccept; }
 	void set_autoAccept(bool x) { _autoAccept = x; }
-        FB::VariantMap get_videoSize(void);
-	
+    FB::VariantMap get_videoSize(void);
+    FB::VariantMap get_resolutions(void);
+
 	std::string get_videoFilterName(void);
 	unsigned long get_pluginWindowId(void);
 
-	
-	
+
+
+
+
     void lock() { pthread_mutex_lock(&mutex); }
     void unlock() { pthread_mutex_unlock(&mutex); }
     void iterate() { if(lin) linphone_core_iterate(lin); }
     void iterateWithMutex() { lock(); iterate(); unlock(); }
-	
-	
+
+
 	// Event helpers
 	FB_JSAPI_EVENT(globalStateChanged, 2, (const int, const std::string)); // int state, string msg
 	FB_JSAPI_EVENT(callStateChanged, 3, (FB::JSAPIPtr, const int, const std::string)); // CallAPI call, int state, string msg
 	FB_JSAPI_EVENT(registrationStateChanged, 2, (const int, const std::string)); // (ProxyAPI call,) int state, string msg
 	FB_JSAPI_EVENT(authInfoRequested, 2, (std::string, std::string)); // string realm, string username
         FB_JSAPI_EVENT(windowAttached, 1, (unsigned long)); // id
-	
-	
+
+
 
 	// Callbacks from linphone core
 	void lcb_global_state_changed(LinphoneGlobalState gstate, const char *msg);
 	void lcb_call_state_changed(LinphoneCall *call, LinphoneCallState cstate, const char *message);
 	void lcb_registration_state_changed(LinphoneProxyConfig *cfg, LinphoneRegistrationState cstate, const char *message);
 	void lcb_auth_info_requested(const char *realm, const char *username);
-	
+
 
 	// Internal
 	FB::JSAPIPtr _add_call(LinphoneCall *call);
@@ -105,7 +110,7 @@ public:
         linphone_core_enable_video(lin, 0, 0);
         linphone_core_enable_video_preview(lin, 0);
     }
-	
+
 
 private:
     linphoneWeakPtr m_plugin;
@@ -116,7 +121,7 @@ private:
     pthread_mutex_t mutex; // Mutex for serializing core calls
     bool no_locks_now;
     ortp_thread_t iterate_thread; // Iterate thread
-    
+
     std::string _logging;
     FILE *_logging_fp;
     FB::JSAPIPtr _sample;
@@ -124,7 +129,7 @@ private:
     unsigned long _call_list_counter;
     bool _autoAccept;
     bool _isQuitting;
-    
+
 public:
 	bool iterate_thread_running; // Indicate, when should iterate thread stop
 };

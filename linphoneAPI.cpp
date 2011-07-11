@@ -5,6 +5,7 @@
 \**********************************************************/
 
 #include <stdio.h>
+#include <cstdlib>
 #include "JSObject.h"
 #include "variant_list.h"
 #include "DOM/Document.h"
@@ -54,8 +55,8 @@ linphoneAPI::linphoneAPI(const linphonePtr& plugin, const FB::BrowserHostPtr& ho
     _call_list(), _call_list_counter(0),
     _logging_fp(), _isQuitting(false)
 {
-  printf("creating new plugin instance\n");
-  
+  printf("creating new main plugin instance\n");
+
   // Register exported methods
   rmethod(init);
   rmethod(start);
@@ -70,7 +71,9 @@ linphoneAPI::linphoneAPI(const linphonePtr& plugin, const FB::BrowserHostPtr& ho
   rmethod(enableStun);
   rmethod(embedVideo);
   rmethod(embedVideoPreview);
-  
+  rmethod(setResolution);
+  rmethod(setResolutionByName);
+
   // Register exported properties
   rpropertyg(running);
   rpropertyg(registered);
@@ -85,20 +88,21 @@ linphoneAPI::linphoneAPI(const linphonePtr& plugin, const FB::BrowserHostPtr& ho
   rpropertyg(pluginWindowId);
   rpropertyg(actualCall);
   rpropertyg(videoSize);
+  rpropertyg(resolutions);
   rproperty(autoAccept);
-  
-  
+
+
   // Initialize mutex
-  pthread_mutex_init(&mutex, NULL);  
-  
+  pthread_mutex_init(&mutex, NULL);
+
   // Initialize as null pointer
   lin = NULL;
   iterate_thread = NULL;
   iterate_thread_running = false;
-  
+
   // Load plugin params
   boost::optional<std::string> par;
-  if(par = plugin->getParam("autoAccept")) _autoAccept = *par == "1";    
+  if(par = plugin->getParam("autoAccept")) _autoAccept = *par == "1";
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -111,7 +115,7 @@ linphoneAPI::linphoneAPI(const linphonePtr& plugin, const FB::BrowserHostPtr& ho
 linphoneAPI::~linphoneAPI()
 {
   printf("deallocating plugin instance\n");
-  
+
   // Quit first
    call_quit();
 }
@@ -136,34 +140,34 @@ linphonePtr linphoneAPI::getPlugin()
 /**
  * Initialize structures
  */
-bool linphoneAPI::call_init(void) {    
+bool linphoneAPI::call_init(void) {
     Lo("init");
-    if(lin) return false; // Already initialized	
-    
-	  
+    if(lin) return false; // Already initialized
+
+
     // Initialize callback table
     memset(&lin_vtable, 0, sizeof(LinphoneCoreVTable));
     lin_vtable.global_state_changed = cb_global_state_changed;
     lin_vtable.call_state_changed = cb_call_state_changed;
     lin_vtable.registration_state_changed = cb_registration_state_changed;
     lin_vtable.auth_info_requested = cb_auth_info_requested;
-    
+
     //char configfile_name[PATH_MAX];
     //snprintf(configfile_name, PATH_MAX, "%s/.linphonerc", getenv("HOME"));
-    
+
     // Create linphone core
     lin = linphone_core_new(&lin_vtable, NULL, NULL, (void *) this);
     if(linphone_core_get_user_data(lin) != this) {
       printf("you have old version of linphone core\n");
       return false;
     }
-    
+
     // Disable logs by default, can be enabled by enableLogs() method
-    linphone_core_disable_logs();    
-        
+    linphone_core_disable_logs();
+
     // TODO: remove later
     linphone_core_set_sip_port(lin, 6060);
-    
+
 	// Configure it by parameters
     boost::optional<std::string> par, par2;
     linphonePtr plugin = getPlugin();
@@ -191,11 +195,11 @@ bool linphoneAPI::call_init(void) {
  */
 bool linphoneAPI::call_start(void) {
 	CheckAndLock("start")
-        
+
     // Initialize iterating thread
     iterate_thread_running = true;
     ortp_thread_create(&iterate_thread,NULL, iterate_thread_main, this);
-    
+
     return true;
 }
 
@@ -205,7 +209,7 @@ bool linphoneAPI::call_start(void) {
 static void *iterate_thread_main(void*p){
     linphoneAPI *t = (linphoneAPI*) p; // Get main object
     printf("iterate thread started\n");
-    
+
     while(t->iterate_thread_running) {
       t->iterateWithMutex();
       usleep(20000);
@@ -219,10 +223,10 @@ static void *iterate_thread_main(void*p){
 bool linphoneAPI::call_quit(void) {
   if(!lin) return false;
   _isQuitting = true;
-  
+
   {
     Lo("terminate last call if necessary");
-    
+
     // Terminate call
     if(linphone_core_in_call(lin)) {
 		linphone_core_terminate_call(lin, NULL);
@@ -231,20 +235,20 @@ bool linphoneAPI::call_quit(void) {
 
   linphone_core_disable_logs(); // Disable further logs
   _logging_fp = NULL;
-  
+
   // Stop iterating
   printf("joining iterate thread\n");
   iterate_thread_running = false;
   ortp_thread_join(iterate_thread,NULL);
   printf("iterate thread joined\n");
-  
+
   // Close log file
   if(_logging_fp) fclose(_logging_fp);
-  
+
   // Destroy linphone core
   linphone_core_destroy(lin);
   lin = NULL;
-  
+
   return true;
 }
 
@@ -316,7 +320,7 @@ void linphoneAPI::embedVideoPreview(void) {
 
 unsigned long linphoneAPI::get_pluginWindowId(void) {
 	return getPlugin()->getNativeWindowId();
-}	
+}
 
 std::string linphoneAPI::get_videoFilterName(void) {
 	CheckAndLock(NULL);
@@ -336,7 +340,7 @@ void linphoneAPI::call_addAuthInfo(std::string username, std::string realm, std:
 
 void linphoneAPI::addAuthInfo(std::string username, std::string realm, std::string passwd) {
   LinphoneAuthInfo *info;
-  
+
   info = linphone_auth_info_new(username.c_str(), NULL, passwd.c_str(), NULL, realm.c_str());
   linphone_core_add_auth_info(lin, info);
   linphone_auth_info_destroy(info);
@@ -353,7 +357,7 @@ void linphoneAPI::call_addProxy(std::string proxy, std::string identity) {
 void linphoneAPI::addProxy(std::string proxy, std::string identity) {
     LinphoneProxyConfig *cfg;
     cfg = linphone_proxy_config_new();
-    
+
     linphone_proxy_config_set_identity(cfg, identity.c_str());
     linphone_proxy_config_set_server_addr(cfg, proxy.c_str());
     linphone_proxy_config_enable_register(cfg, TRUE);
@@ -386,17 +390,17 @@ bool linphoneAPI::call_terminate(void) {
  */
 bool linphoneAPI::get_registered(void) {
   CheckAndLock("get-registered");
-  
+
   LinphoneProxyConfig *cfg;
   int ret;
-  
+
   linphone_core_get_default_proxy(lin, &cfg); // Get default proxy
   if(!cfg) {
     printf("get registered: no proxy present\n");
     return false;
   }
   ret = linphone_proxy_config_is_registered(cfg);
-  
+
   printf("get registered: got cfg %p; %d\n", cfg, ret);
 
   if(cfg) return ret > 0;
@@ -409,28 +413,28 @@ bool linphoneAPI::get_registered(void) {
  */
 FB::JSAPIPtr linphoneAPI::_add_call(LinphoneCall *call) {
 	unsigned long index;
-	
+
 	// Check if it's in registry
 	if(index = (unsigned long) linphone_call_get_user_pointer(call)) {
 		if(_call_list.count(index)) return _call_list[index];
 	}
-	
+
 	index = ++_call_list_counter;
 	printf("Creating new call under index %lu\n", index);
 
-	CallAPIPtr cptr = boost::make_shared<CallAPI>(m_host, &mutex, &lin, call);  
-	
+	CallAPIPtr cptr = boost::make_shared<CallAPI>(m_host, &mutex, &lin, call);
+
 	// Store in map
 	_call_list.insert(std::pair<int, CallAPIPtr>(index, cptr));
-	
+
 	// Set linphone pointer
 	linphone_call_set_user_pointer(call, (void*) index);
-	
+
 	return cptr;
 }
 
 
-	
+
 
 /**
  * Initialize new call
@@ -454,7 +458,7 @@ FB::JSAPIPtr linphoneAPI::get_sample(void) {
   if(!_sample.use_count()) {
 	_sample = boost::make_shared<sampleAPI>(m_host); //reset(new sampleAPI(m_host));
   }
-  
+
   return _sample;
 }
 
@@ -470,7 +474,7 @@ void linphoneAPI::lcb_call_state_changed(LinphoneCall *call, LinphoneCallState c
     if(_isQuitting) return;
 	unsigned long index = (unsigned long) linphone_call_get_user_pointer(call);
 	FB::JSAPIPtr cptr;
-	
+
 	if(index) {
 		if(_call_list.count(index)) { // found in registry
 			cptr = _call_list[index];
@@ -484,12 +488,12 @@ void linphoneAPI::lcb_call_state_changed(LinphoneCall *call, LinphoneCallState c
 		printf("Call %p has no stored index to CallAPI saving\n", call);
 		cptr = _add_call(call);
 	}
-	
+
 	// Fire event
 	printf("Call %lu state changed to %d - %s\n", index, cstate, message);
 	fire_callStateChanged(cptr, cstate, message);
-	
-	
+
+
 	// Call can be released
 	if(cstate == LinphoneCallReleased) {
 		// Remove from call list
@@ -515,7 +519,7 @@ boost::optional<FB::JSAPIPtr> linphoneAPI::get_actualCall(void) {
 
 FB::VariantMap linphoneAPI::get_videoSize(void) {
     CheckAndLock("get-size");
-    
+
     FB::VariantMap ret;
     MSVideoSize size = linphone_core_get_preferred_video_size(lin);
 
@@ -531,4 +535,48 @@ FB::VariantMap linphoneAPI::get_videoSize(void) {
         ret["height"] = size.height;
         return ret;
     //}
+}
+
+FB::VariantMap linphoneAPI::get_resolutions(void) {
+    CheckAndLock("get-resolutions");
+
+    FB::VariantMap ret;
+    MSVideoSizeDef *list = (MSVideoSizeDef *) linphone_core_get_supported_video_sizes(lin);
+
+    for(int i = 0; * ((int *) list) != 0; i++, list++) {
+        FB::VariantMap item;
+        MSVideoSize size = list->vsize;
+
+        printf("%d: %s (%d x %d)\n", i, list->name, size.width, size.height);
+
+        item["name"] = std::string(list->name);
+        item["width"] = size.width;
+        item["height"] = size.height;
+
+        char ss[10];
+        sprintf(ss, "%d", i);
+        //itoa(i, ss, 10);
+
+        ret[std::string(ss)] = item;
+    }
+
+    return ret;
+}
+
+
+void linphoneAPI::call_setResolution(int x, int y) {
+    CheckAndLock("set-resolution");
+    MSVideoSize size;
+
+    size.width = x;
+    size.height = y;
+
+    linphone_core_set_preferred_video_size(lin, size);
+}
+
+
+void linphoneAPI::call_setResolutionByName(std::string name) {
+    CheckAndLock("set-resolution-name");
+
+    linphone_core_set_preferred_video_size_by_name(lin, name.c_str());
 }
