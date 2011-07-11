@@ -20,18 +20,30 @@ VideoWindowAPI::VideoWindowAPI(const linphonePtr& plugin, const FB::BrowserHostP
     m_plugin(plugin), m_host(host)
 {
   printf("VideoWindowAPI instance\n");
-  
+
   // Register exported methods
   rmethod(test);
-  
+
   // Register properties
   rproperty(x);
+  rpropertyg(pluginWindowId);
 }
 
 VideoWindowAPI::~VideoWindowAPI()
 {
   printf("deallocating VideoWindowAPI instance\n");
 }
+
+linphonePtr VideoWindowAPI::getPlugin()
+{
+    linphonePtr plugin(m_plugin.lock());
+    if (!plugin) {
+        throw FB::script_error("The plugin is invalid");
+    }
+    return plugin;
+}
+
+
 
 bool VideoWindowAPI::call_test(std::string uri) {
   return true;
@@ -43,4 +55,8 @@ std::string VideoWindowAPI::get_x(void) {
 
 void VideoWindowAPI::set_x(std::string x) {
   _x = x;
+}
+
+unsigned long VideoWindowAPI::get_pluginWindowId(void) {
+	return getPlugin()->getNativeWindowId();
 }
